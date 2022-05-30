@@ -1,0 +1,31 @@
+<template>
+        <lightning-input type="text" onchange={handleInputChange} value={inputText} placeholder="Enter custom object API name.." variant="label-hidden" class="slds-m-around_small"></lightning-input>
+        
+        <lightning-button variant="brand" label="Submit" title="Primary action" onclick={onSubmitClick} class="slds-m-around_small"></lightning-button>
+
+        <template if:true={isDataFetched}>
+            <lightning-card title="Related entities">
+                
+                <ul class="slds-m-around_medium">
+                    <h1 class="slds-text-title_bold">List of parents: </h1>
+
+                    <template for:each={parents} for:item="parent">
+                        <li key={parent.Id}>
+                             {parent.Name}  -  <span class="slds-text-color_error"> {parent.RelationshipType} </span> 
+                        </li>
+                    </template>
+                </ul>
+
+                <ul class="slds-m-around_medium">
+                    <h1 class="slds-text-title_bold">List of children: </h1>
+
+                    <template for:each={children} for:item="child">
+                        <li key={child.Id}>
+                             {child.Name} -  <span class="slds-text-color_error"> {child.RelationshipType}</span> 
+                        </li>
+                    </template>
+                </ul>
+
+            </lightning-card>
+        </template>
+</template>

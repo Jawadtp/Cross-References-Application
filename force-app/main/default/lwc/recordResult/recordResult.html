@@ -1,0 +1,67 @@
+<template>
+    <lightning-input type="text" onchange={handleInputChange} value={inputText} placeholder="Enter record id.." variant="label-hidden" class="slds-m-around_small"></lightning-input>
+    
+    <lightning-button variant="brand" label="Submit" title="Primary action" onclick={onSubmitClick} class="slds-m-around_small"></lightning-button>
+
+    <!-- <template if:true={showSpinner}>
+        <lightning-spinner></lightning-spinner>
+    </template> -->
+
+    <template if:true={isDataFetched}>
+        <lightning-card title="Related records">
+            
+            <!-- <ul class="slds-m-around_medium">
+                <h1 class="slds-text-title_bold">List of parent records: </h1>
+
+                <template for:each={parents} for:item="parent">
+                    <li key={parent.Id}>
+                        {parent.Name}  -  <span class="slds-text-color_error"> {parent.RelationshipType} </span>
+                    </li>
+                </template>
+            </ul> -->
+            <ul class="slds-m-around_medium">
+                <h1 class="slds-text-title_bold">List of parent records: </h1>
+
+                <template for:each={parents} for:item="parent">
+                    <lightning-card key={parent.Id}>
+                        <div class="parentMetaData">
+                            <span class="parentName">{parent.Name}</span> 
+                            <span class="relationshipType"> ({parent.RelationshipType})</span>
+                        </div> 
+                        
+                        <template for:each={parent.Records} for:item="record">
+                            <div class="record" key={record.Id}>
+                                {parent.NameField}: {record.Name}
+                            </div>
+                        </template>
+
+                    </lightning-card>
+                </template>
+            </ul>
+
+
+            <ul class="slds-m-around_medium">
+                <h1 class="slds-text-title_bold">List of child records: </h1>
+
+                <template for:each={children} for:item="child">
+                    <lightning-card key={child.Id}>
+                        <div class="childMetaData">
+                            <span class="childName">{child.Name}</span> 
+                            <span class="relationshipType"> ({child.RelationshipType})</span>
+                        </div> 
+                        
+                        <template for:each={child.Records} for:item="record">
+                            <div class="record" key={record.Id}>
+                                {child.NameField}: {record.Name}
+                            </div>
+                        </template>
+
+                    </lightning-card>
+                </template>
+            </ul>
+
+        </lightning-card>
+    </template>
+
+
+</template>

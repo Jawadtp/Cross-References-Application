@@ -1,0 +1,31 @@
+<template>
+    <lightning-card>
+        <div class="radioGroupLabel">
+            <h1 class="slds-m-left_small slds-text-heading_medium">What do you want to obtain cross reference for?</h1>
+        </div>
+        <div class="slds-p-left_small">
+            <lightning-radio-group name="radioGroup"
+            options={options}
+            onchange={test}
+            value={value}
+            type="radio"></lightning-radio-group>    
+        </div>
+            
+
+        <template if:true={showEntityResult}>
+            <c-entity-result></c-entity-result>
+        </template>
+
+        <template if:true={showRecordResult}>
+            <c-record-result></c-record-result>
+        </template>
+
+    </lightning-card>
+  </template>
+
+
+
+
+
+
+

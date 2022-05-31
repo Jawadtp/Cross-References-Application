@@ -30,6 +30,9 @@ export default class RecordResult extends LightningElement
         
     }
 
+   
+
+
     getRecordListFromAPIData(data)
     {
         var records = [];
@@ -61,15 +64,16 @@ export default class RecordResult extends LightningElement
         const childData = await getChildRecords({recordId: this.inputText})
         const parentData = await getParentRecords({recordId: this.inputText})
 
-
+     
         this.children = this.getRecordListFromAPIData(childData);
         this.parents = this.getRecordListFromAPIData(parentData);
+       
 
-        console.log('Records are: ',this.parents);
+        console.log('Records are: ',this.children);
 
         this.isDataFetched=true;
 
-        this.showSpinner=false;
+        this.showSpinner=false; 
     }
 
     onSubmitClick()

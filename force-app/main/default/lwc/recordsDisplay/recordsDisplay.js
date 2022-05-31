@@ -1,14 +1,14 @@
-import { LightningElement, api } from 'lwc';
+import { LightningElement, api, track } from 'lwc';
 
 export default class RecordsDisplay extends LightningElement 
 {
     @api relatedRecords;
-
+    
     get isRelatedRecordsEmpty()
     {
         return this.relatedRecords.length==0;
     }
-
+   
     onRecordClick(event)
     {
         const recordId = event.currentTarget.getAttribute('data-item');

@@ -4,7 +4,7 @@
     </template>
 
     <template for:each={relatedRecords} for:item="relatedRecord">
-        <lightning-card key={relatedRecord.Id}>
+        <div key={relatedRecord.Id}>
             <div class="objectMetaData slds-text-title_bold">
                 <span class="childName">{relatedRecord.Name}</span> 
                 <span class="relationshipType"> ({relatedRecord.RelationshipType})</span>
@@ -21,6 +21,7 @@
                 </div>
             </template>
 
-        </lightning-card>
+        </div>
     </template>
+
 </template>

@@ -1,6 +1,6 @@
 public with sharing class CrossReferencesAPI 
 {   
-    private static List<String> entityIgnoreList = new list<String> 
+    private static Set<String> entityIgnoreList = new Set<String> 
     {
         'AIInsightValue',
         'AIRecordInsight',
@@ -47,6 +47,21 @@ public with sharing class CrossReferencesAPI
         'TopicAssignment'
     };
     
+
+    @AuraEnabled
+    public static List<String> getCustomObjectAPINames()
+    {    
+        List<String> objectNames = new List<String>();
+        
+        List<Schema.SObjectType> objList = Schema.getGlobalDescribe().Values();     
+        for(Schema.SObjectType obj : objList)
+        {
+            if(obj.getDescribe().isCustom())
+                objectNames.add(obj.getDescribe().getName());
+        }
+        
+        return objectNames;
+    }
 
     
     @AuraEnabled

@@ -1,0 +1,26 @@
+<template>
+    <template if:true={isRelatedRecordsEmpty}>
+        * No related records found.
+    </template>
+
+    <template for:each={relatedRecords} for:item="relatedRecord">
+        <lightning-card key={relatedRecord.Id}>
+            <div class="objectMetaData slds-text-title_bold">
+                <span class="childName">{relatedRecord.Name}</span> 
+                <span class="relationshipType"> ({relatedRecord.RelationshipType})</span>
+            </div> 
+            
+            <template for:each={relatedRecord.Records} for:item="record">
+                <div class="record" key={record.Id}  data-item={record.Id} onclick={onRecordClick}>
+                    <div class="nameField">
+                        {relatedRecord.NameField}
+                    </div>
+                    <div class="recordName slds-text-title_bold slds-text-heading_large">
+                        {record.Name} 
+                    </div>
+                </div>
+            </template>
+
+        </lightning-card>
+    </template>
+</template>

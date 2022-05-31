@@ -1,7 +1,19 @@
 <template>
-        <lightning-input type="text" onchange={handleInputChange} value={inputText} placeholder="Enter custom object API name.." variant="label-hidden" class="slds-m-around_small"></lightning-input>
+        <!-- <lightning-input type="text" onchange={handleInputChange} value={inputText} placeholder="Enter custom object API name.." variant="label-hidden" class="slds-m-around_small"></lightning-input> -->
         
-        <lightning-button variant="brand" label="Submit" title="Primary action" onclick={onSubmitClick} class="slds-m-around_small"></lightning-button>
+        <lightning-combobox
+        class="slds-m-around_small"
+            name="entityNameCombobox"
+            value={inputText}
+            placeholder={getPlaceholderText}
+            options={customObjectApiNames}
+            onchange={handleChange} ></lightning-combobox>
+
+        <lightning-button variant="brand" label="Submit" title="Primary action" onclick={onSubmitClick} class="slds-m-left_small"></lightning-button>
+
+        <template if:true={showSpinner}>
+            <lightning-spinner alternative-text="Fetching records.."></lightning-spinner>
+        </template>
 
         <template if:true={isDataFetched}>
             <lightning-card title="Related entities">

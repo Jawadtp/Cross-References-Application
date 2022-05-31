@@ -1,7 +1,7 @@
 <template>
     <lightning-card>
         <div class="radioGroupLabel">
-            <h1 class="slds-m-left_small slds-text-heading_medium">What do you want to obtain cross reference for?</h1>
+            <h1 class="slds-m-around_small slds-text-heading_medium">What do you want to obtain cross reference for?</h1>
         </div>
         <div class="slds-p-left_small">
             <lightning-radio-group name="radioGroup"
@@ -13,7 +13,7 @@
             
 
         <template if:true={showEntityResult}>
-            <c-entity-result></c-entity-result>
+            <c-entity-result custom-object-api-names={customObjectAPINames}></c-entity-result>
         </template>
 
         <template if:true={showRecordResult}>

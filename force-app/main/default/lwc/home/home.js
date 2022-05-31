@@ -1,4 +1,5 @@
 import { LightningElement, track } from 'lwc';
+import getCustomObjectAPINames from "@salesforce/apex/CrossReferencesAPI.getCustomObjectAPINames";
 
 
 
@@ -8,8 +9,10 @@ export default class Home extends LightningElement
 
     inputText='';
 
-    @track parents={}
-    @track children={}
+    @track parents={};
+    @track children={};
+
+    @track customObjectAPINames = [];
 
     showResult=false;
 
@@ -17,7 +20,23 @@ export default class Home extends LightningElement
 
     connectedCallback()
     {
+        this.fetchCustomObjectAPINames()
+    }
 
+    async fetchCustomObjectAPINames()
+    {
+        const apiNames = await getCustomObjectAPINames();
+
+        let customObjectAPINames = [];
+
+        apiNames.forEach((apiName)=>{
+            customObjectAPINames.push({
+                label: apiName,
+                value: apiName
+            })
+        });
+
+        this.customObjectAPINames=customObjectAPINames;
     }
 
     get isDataFetched()

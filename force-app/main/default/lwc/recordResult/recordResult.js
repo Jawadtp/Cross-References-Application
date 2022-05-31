@@ -8,6 +8,8 @@ export default class RecordResult extends LightningElement
 
     isDataFetched=false;
 
+    showSpinner=false;
+
     @track
     children=[];
 
@@ -19,7 +21,14 @@ export default class RecordResult extends LightningElement
         this.inputText=event.target.value;
     }
 
-    
+    onRecordClick(event)
+    {
+        const recordId = event.currentTarget.getAttribute('data-item');
+        console.log('PRESSED: ', recordId);
+        this.inputText=recordId;
+        this.fetchRecords();
+        
+    }
 
     getRecordListFromAPIData(data)
     {
@@ -34,10 +43,20 @@ export default class RecordResult extends LightningElement
         return records;
     }
 
-    async onSubmitClick()
+   fetchClickedRecord(event)
     {
-        console.log('Id: ', this.inputText)
+        console.log('Here ', event.detail);
+        this.inputText=event.detail;
+        this.fetchRecords();
+    }
 
+    async fetchRecords()
+    {
+
+        if(this.inputText.trim()=='')
+            return;
+
+        this.showSpinner=true;
 
         const childData = await getChildRecords({recordId: this.inputText})
         const parentData = await getParentRecords({recordId: this.inputText})
@@ -46,20 +65,17 @@ export default class RecordResult extends LightningElement
         this.children = this.getRecordListFromAPIData(childData);
         this.parents = this.getRecordListFromAPIData(parentData);
 
-        console.log('Records are: ',JSON.stringify(this.parents));
+        console.log('Records are: ',this.parents);
 
         this.isDataFetched=true;
-        /*
-        const result = Object.entries(childData);
 
-        for(var i=0; i<result.length; i++)
-        {
-            console.log(result[i]);
+        this.showSpinner=false;
+    }
 
-        }
-        //console.log('Child records: '+ result)
-
-        */
+    onSubmitClick()
+    {
+       this.fetchRecords();
+       
     }
 
 }

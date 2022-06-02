@@ -11,3 +11,45 @@
     max-height: 400px;
     overflow-y: scroll;
 }
+
+.recordResultOuterWrapper
+{
+    margin: 15px 15px;
+
+}
+
+.enteredRecordText
+{
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.currentRecordCard
+{
+    position: relative;
+    display: inline-block;
+    border-radius: 5px;
+    padding: 6px 8px;
+    box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+    background: #03b1fc;
+    color: white;
+}
+
+.exitButton
+{
+    position: absolute;
+    top: -3px;
+    right: 0px;
+    color: red;
+    font-weight: bold;
+    cursor: pointer;
+}
+.nameField
+{
+    display: block;
+}
+
+.recordName
+{
+    display: block;
+}

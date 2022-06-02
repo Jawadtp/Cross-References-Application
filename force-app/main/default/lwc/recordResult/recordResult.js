@@ -1,6 +1,9 @@
 import { LightningElement, track } from 'lwc';
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
+
 import getChildRecords from "@salesforce/apex/CrossReferencesAPI.getChildRecords";
 import getParentRecords from "@salesforce/apex/CrossReferencesAPI.getParentRecords";
+import getRecordById from "@salesforce/apex/CrossReferencesAPI.getRecordById";
 
 export default class RecordResult extends LightningElement 
 {
@@ -10,11 +13,15 @@ export default class RecordResult extends LightningElement
 
     showSpinner=false;
 
+
     @track
     children=[];
 
     @track 
     parents=[];
+
+    @track 
+    currentRecordDetails;
 
     handleInputChange(event)
     {
@@ -30,7 +37,12 @@ export default class RecordResult extends LightningElement
         
     }
 
-   
+   onClearResultClick(event)
+   {
+       console.log('Cleared');
+       this.children=this.parents=[];
+       this.isDataFetched=false;
+   }
 
 
     getRecordListFromAPIData(data)
@@ -55,19 +67,40 @@ export default class RecordResult extends LightningElement
 
     async fetchRecords()
     {
+        this.isIdInvalid=false;
 
-        if(this.inputText.trim()=='')
+        this.inputText = this.inputText.trim();
+        if(this.inputText=='')
             return;
 
         this.showSpinner=true;
 
-        const childData = await getChildRecords({recordId: this.inputText})
-        const parentData = await getParentRecords({recordId: this.inputText})
+        let childData;
+        let parentData;
+        let currentRecordDetails;
+        try
+        {
+            childData = await getChildRecords({recordId: this.inputText});
+            parentData = await getParentRecords({recordId: this.inputText});
+            currentRecordDetails = await getRecordById({recordId: this.inputText});
+        }
+        catch(e)
+        {
+            this.showSpinner=false; 
+            const evt = new ShowToastEvent({
+                title: 'Invalid record ID',
+                message: 'No record could be found with the entered record ID',
+                variant: 'error',
+            });
+            this.dispatchEvent(evt);
+            return;
+        }
 
+        console.log('Parent data: ', JSON.stringify(parentData))
      
         this.children = this.getRecordListFromAPIData(childData);
         this.parents = this.getRecordListFromAPIData(parentData);
-       
+       this.currentRecordDetails = currentRecordDetails;
 
         console.log('Records are: ',this.children);
 

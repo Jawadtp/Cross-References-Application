@@ -2,27 +2,43 @@
     <div class="recordInput slds-m-top_x-large">
         <lightning-input type="text" onchange={handleInputChange} value={inputText} placeholder="Enter record id.." variant="label-hidden" class="slds-m-around_small"></lightning-input>
     </div>
-    <lightning-button variant="brand" label="Submit" title="Primary action" onclick={onSubmitClick} class="slds-m-around_small"></lightning-button>
 
+
+    <lightning-button variant="brand" label="Submit" title="Primary action" onclick={onSubmitClick} class="slds-m-around_small"></lightning-button>
    
     <template if:true={showSpinner}>
         <lightning-spinner alternative-text="Fetching records.."></lightning-spinner>
     </template>
 
     <template if:true={isDataFetched}>
-        <lightning-card title="Related records">
-            
-            <div class="recordResultWrapper">
-                <h1 class="slds-text-title_bold">Parent records </h1>
-                <c-records-display onfetchrelatedrecords={fetchClickedRecord} related-records={parents}></c-records-display>
-            </div>
 
-            <div class="recordResultWrapper">
-                <h1 class="slds-text-title_bold">Child records </h1>
-                <c-records-display onfetchrelatedrecords={fetchClickedRecord} related-records={children}></c-records-display>              
+        <div class="recordResultOuterWrapper">
+            <div class="currentRecordTitle">
+               <div class="enteredRecordText"> Entered record </div>
             </div>
+            <div class="currentRecordCard">
+                <div class="exitButton" onclick={onClearResultClick}>
+                    X
+                </div>
+                <div class="nameField">
+                    {currentRecordDetails.NameField}
+                </div>
+                <div class="recordName slds-text-title_bold slds-text-heading_large">
+                    {currentRecordDetails.Name} 
+                </div>
+            </div>
+        </div>
 
-        </lightning-card>
+        <div class="recordResultWrapper">
+            <h1 class="slds-text-title_bold">Parent records </h1>
+            <c-records-display onfetchrelatedrecords={fetchClickedRecord} related-records={parents}></c-records-display>
+        </div>
+
+        <div class="recordResultWrapper">
+            <h1 class="slds-text-title_bold">Child records </h1>
+            <c-records-display onfetchrelatedrecords={fetchClickedRecord} related-records={children}></c-records-display>              
+        </div>
+
     </template>
 
 

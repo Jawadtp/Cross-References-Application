@@ -199,7 +199,11 @@ public with sharing class CrossReferencesAPI
    public static Map<String, List<Map<String, String>>> getParentRecords(Id recordId)
     {
      	Map<String, List<Map<String, String>>> parents = new Map<String, List<Map<String, String>>>();
-        String objectAPIName = recordId.getSObjectType().getDescribe().getName();
+        String objectAPIName = getObjectAPINameFromId(recordId);
+       
+        if(objectAPIName==null)
+            throw new AuraHandledException('Invalid id');
+
         SObjectType objectType = Schema.getGlobalDescribe().get(objectAPIName);
         
 
@@ -250,6 +254,29 @@ public with sharing class CrossReferencesAPI
 
     }
 
+    @AuraEnabled
+    public static Map<String, String> getRecordById(Id recordId)
+    {
+        String objectAPIName = recordId.getSObjectType().getDescribe().getName();
+        Map<String, String> recordDetails = new Map<String, String>();
+        String nameField = getNameField(objectAPIName);
+        
+        String query = 'SELECT id, ' + nameField + ' from ' + objectAPIName + ' where id=' + '\'' + recordId + '\'' + ' LIMIT 1';
+
+        try
+        {
+            SObject record = Database.query(query);
+            recordDetails.put('Name', String.valueOf(record.get(nameField)));
+            recordDetails.put('Id', String.valueOf(record.get('id')));
+            recordDetails.put('NameField', nameField);
+            return recordDetails;        
+        }
+        catch(Exception e)
+        {
+            System.debug(e);
+            return null;
+        }
+    }
 
     static String getNameField(String objectAPIName)
     {
@@ -267,5 +294,18 @@ public with sharing class CrossReferencesAPI
             return null;
         }
     
+    }
+
+    static String getObjectAPINameFromId(Id recordId)
+    {
+        try 
+        {
+            String name = recordId.getSObjectType().getDescribe().getName();
+            return name;
+
+        } catch (Exception e) 
+        {
+            return null;    
+        }
     }
 }

@@ -6,9 +6,11 @@ export default class RecordsDisplay extends LightningElement
     @track _relatedRecords;
     @track activeSections=[];
     @track relatedRecordsActive=[];
+    inputText='';
 
     relatedRecordsOriginal;
-
+    activeSectionsOriginal;
+    
     @api
     get relatedRecords() 
     {
@@ -30,7 +32,12 @@ export default class RecordsDisplay extends LightningElement
             activeSections.push(record.Name);
             relatedRecordsActive.push({...record, AccordionDisplayName: record.Name + ' (' + record.RelationshipType+') - ' + record.Records.length + ' record' + (record.Records.length===1?'':'s')});
         });
-       this.activeSections=activeSections;
+
+        Promise.resolve().then(() => {
+            this.activeSections=activeSections;
+            this.activeSectionsOriginal=activeSections;
+        });
+
         this.relatedRecordsActive=relatedRecordsActive;
         this.relatedRecordsOriginal=relatedRecordsActive;
         console.log(this.relatedRecordsActive)
@@ -51,11 +58,16 @@ export default class RecordsDisplay extends LightningElement
 
     handleSearchInputChange(event)
     {   
+    
+        this.inputText=event.target.value;
+    
         const searchKey = event.target.value.toLowerCase();;
 
         if(searchKey!=='')
         {
             let filteredRecords = [];
+
+            let activeSections = [];
 
             this._relatedRecords.forEach((groupOfRecords)=> 
             {
@@ -69,17 +81,23 @@ export default class RecordsDisplay extends LightningElement
 
                 if(recordsInGroup.length>0)
                 {
-                    if(this.activeSections.indexOf(groupOfRecords.Name) === -1) this.activeSections.push(groupOfRecords.Name);
+                     activeSections.push(groupOfRecords.Name);
                     filteredRecords.push({...groupOfRecords, Records: recordsInGroup, AccordionDisplayName:  groupOfRecords.Name + ' (' + groupOfRecords.RelationshipType+') - ' + recordsInGroup.length + ' record' + (recordsInGroup.length===1?'':'s')});
                 }
             });
            
+            Promise.resolve().then(() => {
+                this.activeSections=activeSections;
+            });
             this.relatedRecordsActive = filteredRecords;
         }
         else
         {
             console.log('Empty search query. Displaying everything..');
             this.relatedRecordsActive=this.relatedRecordsOriginal;
+            Promise.resolve().then(() => {
+                this.activeSections=this.activeSectionsOriginal;
+            });
         }
 
         console.log('Active sections: ' + this.activeSections);
@@ -89,6 +107,9 @@ export default class RecordsDisplay extends LightningElement
     onRecordClick(event)
     {
         this.hasRendered=false;
+        //this.template.querySelector('.searchInput').reset();
+        this.inputText='';
+        console.log('Resetting input text..');
         const recordId = event.currentTarget.getAttribute('data-item');
         const recordClickEvent = new CustomEvent('fetchrelatedrecords', { detail: recordId });
         this.dispatchEvent(recordClickEvent);

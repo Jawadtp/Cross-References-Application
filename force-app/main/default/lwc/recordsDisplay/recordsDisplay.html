@@ -4,7 +4,7 @@
     </template>
 
     <template if:true={showSearchRecords}>
-        <lightning-input type="text" onchange={handleSearchInputChange} value={inputText} placeholder="Enter record name to search.." variant="label-hidden" class="slds-m-around_small"></lightning-input>
+        <lightning-input type="text" onchange={handleSearchInputChange} value={inputText} placeholder="Enter record name to search.." variant="label-hidden" class="searchInput slds-m-around_small"></lightning-input>
     </template>
 
 
@@ -13,11 +13,6 @@
         <template for:each={relatedRecordsActive} for:item="relatedRecord">
             
             <lightning-accordion-section key={relatedRecord.Name} name={relatedRecord.Name} label={relatedRecord.AccordionDisplayName}>
-
-                <!-- <div class="objectMetaData slds-text-title_bold">
-                    <span class="childName">{relatedRecord.Name}</span> 
-                    <span class="relationshipType"> ({relatedRecord.RelationshipType})</span>
-                </div>  -->
                 
                 <template for:each={relatedRecord.Records} for:item="record">
                     <div class="record" key={record.Id}  data-item={record.Id} onclick={onRecordClick}>

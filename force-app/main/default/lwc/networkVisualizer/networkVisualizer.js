@@ -16,7 +16,6 @@ export default class NetworkVisualizer extends LightningElement {
     @api imageName
     @api labelName
     @api showLabels = false
-
     @track record;
 
     // svgWidth = 500;

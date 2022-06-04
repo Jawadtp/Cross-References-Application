@@ -1,24 +1,42 @@
-/* global d3 */
-import { LightningElement } from 'lwc';
+import { LightningElement, api } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import { loadScript, loadStyle } from 'lightning/platformResourceLoader';
-import D3 from '@salesforce/resourceUrl/network_d3'
-import DATA from './data';
+import D3 from '@salesforce/resourceUrl/network_d3';
 
-export default class LibsD3 extends LightningElement {
-    svgWidth = 400;
-    svgHeight = 400;
+export default class entityGraphicalDisplay extends LightningElement 
+{
+    @api children;
+    @api parents;
+    @api entity;
+
+    clicked='none';
+
+    svgHeight = 500;
+    svgWidth = 800;
 
     d3Initialized = false;
 
+    onRelatedEntityClick(d)
+    {
+        const entityName = d.name.split(' ')[0];
+        
+        if(entityName!==this.entity)
+        {
+            const entityClickEvent = new CustomEvent('fetchdetailsforentity', { detail: entityName });
+            this.dispatchEvent(entityClickEvent);
+        }
+
+    }
+    
     renderedCallback() {
+        console.log('Rendered callback called');
         if (this.d3Initialized) {
             return;
         }
         this.d3Initialized = true;
 
         Promise.all([
-            loadScript(this, D3 + '/d3.min.js'),
+            loadScript(this, D3 + '/d3.v5.min.js'),
             loadStyle(this, D3 + '/style.css')
         ])
             .then(() => {
@@ -34,90 +52,122 @@ export default class LibsD3 extends LightningElement {
                 );
             });
     }
+    
+    initializeD3 = () =>
+    {
+        var svgHeight = this.svgHeight;
+        var svgWidth = this.svgWidth;
+        
+        let nodes=[];
+        let links=[];
 
-    initializeD3() {
-        // Example adopted from https://bl.ocks.org/mbostock/2675ff61ea5e063ede2b5d63c08020c7
-        const svg = d3.select(this.template.querySelector('svg.d3'));
-        const width = this.svgWidth;
-        const height = this.svgHeight;
-        const color = d3.scaleOrdinal(d3.schemeDark2);
-
-        const simulation = d3
-            .forceSimulation()
-            .force(
-                'link',
-                d3.forceLink().id((d) => {
-                    return d.id;
-                })
-            )
-            .force('charge', d3.forceManyBody())
-            .force('center', d3.forceCenter(width / 2, height / 2));
-
-        const link = svg
-            .append('g')
-            .attr('class', 'links')
-            .selectAll('line')
-            .data(DATA.links)
-            .enter()
-            .append('line')
-            .attr('stroke-width', (d) => {
-                return Math.sqrt(d.value);
-            });
-
-        const node = svg
-            .append('g')
-            .attr('class', 'nodes')
-            .selectAll('circle')
-            .data(DATA.nodes)
-            .enter()
-            .append('circle')
-            .attr('r', 5)
-            .attr('fill', (d) => {
-                return color(d.group);
-            })
-            .call(
-                d3
-                    .drag()
-                    .on('start', dragstarted)
-                    .on('drag', dragged)
-                    .on('end', dragended)
-            );
-
-        node.append('title').text((d) => {
-            return d.id;
+        this.parents.forEach((parent)=>{
+            nodes.push({"name": getEntityInfoString(parent, 'parent'), "group": 1});
+            links.push({"source": this.entity, "target": getEntityInfoString(parent, 'parent')});
         });
 
-        simulation.nodes(DATA.nodes).on('tick', ticked);
+        this.children.forEach((child)=>{
+            nodes.push({"name": getEntityInfoString(child, 'child'), "group": 1});
+            links.push({"source": this.entity, "target": getEntityInfoString(child, 'child') });
+        });
 
-        simulation.force('link').links(DATA.links);
-
-        function ticked() {
-            link.attr('x1', (d) => d.source.x)
-                .attr('y1', (d) => d.source.y)
-                .attr('x2', (d) => d.target.x)
-                .attr('y2', (d) => d.target.y);
-            node.attr('cx', (d) => d.x).attr('cy', (d) => d.y);
+        function getEntityInfoString(entityObject, type)
+        {
+            return `${entityObject.Name} (${entityObject.RelationshipType} ${type.toUpperCase()})`;
         }
 
-        function dragstarted(d) {
-            if (!d3.event.active) {
-                simulation.alphaTarget(0.3).restart();
-            }
+        nodes.push({"name": this.entity, "group": 1});
+
+        const graph = {
+            "nodes": nodes,
+            "links": links
+        }
+        
+       
+        var simulation = d3.forceSimulation()
+            .force("ct", d3.forceCenter(svgHeight / 2, svgWidth / 4))
+            .force("link", d3.forceLink().id(function(d) { return d.name; })
+                .distance(180).strength(4))
+            .force("charge", d3.forceManyBody().strength(-5000))
+              .force("centering", d3.forceCenter(svgWidth/3.5, svgHeight/2))
+            .force("x", d3.forceX(svgWidth / 2))
+            .force("y", d3.forceY(svgHeight / 2))
+            .on("tick", tick);
+        
+        var svg = d3.select(this.template.querySelector('svg.d3')).append("svg")
+            .attr("width", svgWidth)
+            .attr("height", svgHeight);
+        
+        svg.append("g").attr("class", "links");
+        svg.append("g").attr("class", "nodes");
+        
+        function start(graph) {
+        
+            var linkElements = svg.select(".links").selectAll(".link").data(graph.links);
+        
+            linkElements.enter().append("line").attr("class", "link");
+            linkElements.exit().remove();
+        
+            var nodeElements = svg.select(".nodes").selectAll(".node")
+                .data(graph.nodes, function(d) { return d.name })
+                .enter().append("g")
+                .attr("class", "node");
+        
+            var circles = nodeElements.append("circle")
+                .attr("r", 8);
+        
+            var labels = nodeElements.append("text")
+                .text(function(d) { return d.name; })
+                .attr("x", 10)
+                .attr("y", 10);
+        
+            nodeElements.exit().remove();
+        
+            simulation.nodes(graph.nodes);
+            simulation.force("link").links(graph.links);
+            simulation.alphaTarget(0.1).restart();
+        }
+        
+        function tick() {
+            var nodeElements = svg.select(".nodes").selectAll(".node");
+            var linkElements = svg.select(".links").selectAll(".link");
+        
+            nodeElements.attr("transform", function(d) {
+                    return "translate(" + d.x + "," + d.y + ")";
+                })
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+        
+            linkElements.attr("x1", function(d) { return d.source.x; })
+                .attr("y1", function(d) { return d.source.y; })
+                .attr("x2", function(d) { return d.target.x; })
+                .attr("y2", function(d) { return d.target.y; });
+        }
+
+        let dragstarted = function(d) {
+            this.onRelatedEntityClick(d);
+
+            if (!d3.event.active) simulation.alphaTarget(0.1).restart();
             d.fx = d.x;
             d.fy = d.y;
-        }
+         }
 
+        dragstarted = dragstarted.bind(this);   
+        
+        
         function dragged(d) {
             d.fx = d3.event.x;
             d.fy = d3.event.y;
         }
-
+        
         function dragended(d) {
-            if (!d3.event.active) {
-                simulation.alphaTarget(0);
-            }
+            if (!d3.event.active) simulation.alphaTarget(0);
             d.fx = null;
             d.fy = null;
         }
+        
+        start(graph);
     }
 }

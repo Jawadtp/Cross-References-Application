@@ -95,7 +95,7 @@ public with sharing class CrossReferencesAPI
                 {
                     when null
                     {
-                        relationshipType='Lookup';
+                        relationshipType='Look up';
                     }
                     when else
                     {

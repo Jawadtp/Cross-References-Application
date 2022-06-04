@@ -107,7 +107,6 @@ export default class RecordsDisplay extends LightningElement
     onRecordClick(event)
     {
         this.hasRendered=false;
-        //this.template.querySelector('.searchInput').reset();
         this.inputText='';
         console.log('Resetting input text..');
         const recordId = event.currentTarget.getAttribute('data-item');

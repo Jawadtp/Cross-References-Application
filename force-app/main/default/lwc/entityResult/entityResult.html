@@ -16,7 +16,7 @@
         </template>
 
         <template if:true={isDataFetched}>
-            <lightning-card title="Related entities">
+            <!-- <lightning-card title="Related entities">
                 
                 <ul class="slds-m-around_medium">
                     <h1 class="slds-text-title_bold">List of parents: </h1>
@@ -38,6 +38,8 @@
                     </template>
                 </ul>
 
-            </lightning-card>
+            </lightning-card> -->
+            <c-entity-graphical-display onfetchdetailsforentity={fetchDetailsForEntity} children={children} parents={parents} entity={currentEntity}></c-entity-graphical-display>
+           
         </template>
 </template>

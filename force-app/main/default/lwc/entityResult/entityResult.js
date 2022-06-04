@@ -4,6 +4,7 @@ import getChildren from "@salesforce/apex/CrossReferencesAPI.getChildren";
 
 export default class EntityResult extends LightningElement 
 {
+    currentEntity='';
     inputText='';
 
     showSpinner=false;
@@ -42,15 +43,44 @@ export default class EntityResult extends LightningElement
         this.inputText = event.target.value;
     }
 
+    isEntityCustom(entityName)
+    {
+
+        for(var i=0; i<this.customObjectApiNames.length; i++)
+            if(this.customObjectApiNames[i].value===entityName)
+                return true;
+        return false;
+    }
+
+    fetchDetailsForEntity(event)
+    {
+        console.log('YEE HAA');
+        const entityName = event.detail;
+        console.log('This clicked haha: ', entityName);
+
+        if(this.isEntityCustom(entityName.trim()))
+        {
+            this.inputText=entityName;
+            this.fetchRelatedEntities();
+        }
+        
+    }
+
     async fetchRelatedEntities()
     {
         this.showSpinner=true;
+        this.currentEntity=this.inputText;
+
+        this.parents=[];
+        this.children=[];
 
         const parentData = await getParents({objectName: this.inputText});
         const childData = await getChildren({objectName: this.inputText});
 
         this.parents=parentData;
         this.children=childData;
+
+        console.log('parent data updated');
 
         this.showSpinner=false;
     }

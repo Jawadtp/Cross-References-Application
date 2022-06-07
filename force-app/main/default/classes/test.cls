@@ -73,7 +73,7 @@ public with sharing class CrossReferencesAPI
                 
         List<Map<String, String>> parents = new List<Map<String, String>>();
 
-        Set<String> parentNames = new Set<String>(); //Parent names as they are encountered are added to this set. If the same parent count is encountered again, it is ignored to avoid duplicate results.
+        Set<String> parentNames = new Set<String>(); //Parent names as they are encountered are added to this set. IF the same parent count is encountered again, it is ignored to avoid duplicate results.
 
         for(Schema.SobjectField field: objectType.getDescribe().fields.getMap().Values())
         {
@@ -86,7 +86,7 @@ public with sharing class CrossReferencesAPI
 
                 parentNames.add(parentName); //Parent name is added to the set if it has never been encountered earlier in the loop.
 
-                parentName = parentName.substring(1, parentName.length()-1); //Parent name is returned in the format (name). () are removed.
+                parentName = parentName.Substring(1, parentName.length()-1); //parent name is returned in the format (name). () are removed.
 
                 
                 Integer relationshipOrder = field.getDescribe().getRelationshipOrder(); 
@@ -98,12 +98,11 @@ public with sharing class CrossReferencesAPI
                  parents.add(item);
             }
         }
-        return parents; // List of {Name, RelationshipType, Id}
-                        // Example: [{Name: 'Account', RelationshipType: 'Master-Detail', Id: '12345678'}, {...}, ...]
+        return parents;
 
     }
 
-    // Returns the list of all child entities (both look up and master-detail) for the entity with the specified API name.
+    //Returns the list of all child entities (both look up and master-detail) for the entity with the specified API name.
     @AuraEnabled
     public static List<Map<String, String>> getChildren(String objectName)
     {
@@ -133,11 +132,11 @@ public with sharing class CrossReferencesAPI
 
             children.add(item);
         }
-        return children; // List of {Name, RelationshipType, Id}
-                        // Example: [{Name: 'Account', RelationshipType: 'Master-Detail', Id: '12345678'}, {...}, ...]
+        return children;
     }
 
-    // Returns the list of all child records of the record with the specified ID.
+
+    // Returns the list of all records that are related to record with the specified record id.
     @AuraEnabled
     public static Map<String, List<Map<String, String>>> getChildRecords(Id recordId)
     {
@@ -151,26 +150,22 @@ public with sharing class CrossReferencesAPI
         for (ChildRelationship childRelation : describeResult.getChildRelationships()) 
         {
             
-            if(childRelation.getChildSObject().getDescribe().isQueryable()) // Not every child object is queryable.
+            if(childRelation.getChildSObject().getDescribe().isQueryable()) // Not every child relation maybe queried.
             {
                 String typeOfRelation = childRelation.isCascadeDelete() && childRelation.getField().getDescribe().getRelationshipOrder()!=null?'Master-Detail':'Look up';
                 List<Map<String, String>> childList = new List<Map<String, String>>();
                 String childObjectName = String.valueOf(childRelation.getChildSObject());
-                String nameField='';
+                String nameField = getNameField(childObjectName); //Name field exists for every object in Salesforce but its field name may vary.
                 
-                for(SObjectField field :childRelation.getChildSObject().getDescribe().fields.getMap().values())
-                {
-                    DescribeFieldResult describe  = field.getDescribe();
-                    if(describe.isNameField())
-                        nameField = describe.getName();
-                }
-                
+
                 try
                 {
-                    String query = String.format('SELECT {0} FROM {1} WHERE {2} = {3}', new List<String>{nameField, childObjectName, String.valueOf(childRelation.getField()), +'\''+String.valueOf(recordId)+'\''});
+                    // String query = String.format('SELECT {0} FROM {1} WHERE {2} = {3}', new List<String>{nameField, childObjectName, String.valueOf(childRelation.getField()), '\''+recordId+'\''});
+                    SObject[] sobjectRecords = Database.query('select '+nameField+' from ' + childObjectName + ' where ' + childRelation.getField() + ' = :recordId');
 
-                    SObject[] sobjectRecords = Database.query(query);
+                    //System.debug('getchildrecords: ' + query);
 
+                    // SObject[] sobjectRecords = Database.query(query);
                     for (SObject sobj : sobjectRecords) 
                     {
                         Map<String, String> record = new Map<String, String>();
@@ -184,27 +179,25 @@ public with sharing class CrossReferencesAPI
                 {
                     System.debug(e);
                 }
-                if(childList.size()>0) children.put(childRelation.getChildSObject()+','+typeOfRelation+','+nameField, childList); //If there is at least once record for the given child entity that is related to the passed entity, add to main list.
+                if(childList.size()>0) children.put(childRelation.getChildSObject()+','+typeOfRelation+','+nameField, childList);
             }
             
         }
         
-        return children; // Children is a map from (childName, relationshipType, nameField) -> records.
-                        // Example: ('Account, Master-Detail, Name': [acc1, acc2, acc3, ... ]);
+        return children;
 
 
         
     }
 
-    // Returns the list of all parent records related to the record with the specified record ID.
     @AuraEnabled
    public static Map<String, List<Map<String, String>>> getParentRecords(Id recordId)
     {
      	Map<String, List<Map<String, String>>> parents = new Map<String, List<Map<String, String>>>();
-        String objectAPIName = getObjectAPINameFromId(recordId); // objectAPIName is null for invalid record IDs.
+        String objectAPIName = getObjectAPINameFromId(recordId);
        
-        if(objectAPIName==null) 
-            throw new AuraHandledException('Invalid ID');
+        if(objectAPIName==null)
+            throw new AuraHandledException('Invalid id');
 
         SObjectType objectType = Schema.getGlobalDescribe().get(objectAPIName);
         
@@ -217,7 +210,7 @@ public with sharing class CrossReferencesAPI
             {
                 String parentName = String.valueOf(field.getDescribe().getReferenceTo());                                      
                 parentNames.add(parentName);
-                parentName = parentName.Substring(1, parentName.length()-1); // Parent name is returned in the format (name). () are removed.
+                parentName = parentName.Substring(1, parentName.length()-1); //parent name is returned in the format (name). () are removed.
                 	
                 String nameField = getNameField(parentName);
                 if(nameField==null) continue;
@@ -228,15 +221,16 @@ public with sharing class CrossReferencesAPI
                 if(field.getDescribe().isCustom())
                     parentName=parentName.substring(0, parentName.length()-1)+'r'; // For custom objects, while querying parent name must contain __r.
                 
+                //String query = String.format('SELECT {0}.id, {1}.{2}, ID FROM {3} WHERE ID = {4}', new List<String>{parentName, parentName, nameField, objectAPIName, '\''+recordId+'\''});
+                String query = 'select '+parentName+'.id, ' + parentName+'.'+nameField+' , id from '+objectAPIName+' where id='+'\''+recordId+'\'';
+
+                System.debug('getparentrecords ' + query);
 
                 List<Map<String, String>> parentRecords = new List<Map<String, String>>();
 
                 try
                 {
-                    String query = String.format('SELECT {0}.id, {1}.{2}, ID FROM {3} WHERE ID = {4}', new List<String>{parentName, parentName, nameField, objectAPIName, '\''+recordId+'\''}); 
-
                     List<SObject> parentRecordsSObjects = Database.query(query);
-
                     for(SObject parentRecordObject: parentRecordsSObjects)
                     {						
                         parentRecordObject = parentRecordObject.getSObject(parentName);
@@ -254,22 +248,22 @@ public with sharing class CrossReferencesAPI
                 if(parentRecords.size()>0) parents.put(parentName+','+relationshipType+','+nameField, parentRecords);
             }
         }
-     return parents; // Parents is a map from (parentName, relationshipType, nameField) -> records.
-                     // Example: ('Account, Master-Detail, Name': [acc1, acc2, acc3, ... ]);
+     return parents;
 
     }
 
-    // Fetch details for the record with the given record ID.
     @AuraEnabled
     public static Map<String, String> getRecordById(Id recordId)
     {
-        String objectAPIName = recordId.getSObjectType().getDescribe().getName();
         Map<String, String> recordDetails = new Map<String, String>();
+
+        String objectAPIName = recordId.getSObjectType().getDescribe().getName();
         String nameField = getNameField(objectAPIName);
         
+        String query = String.format('SELECT ID, {0} FROM {1} WHERE ID={2} LIMIT 1', new List<String>{nameField, objectAPIName, '\''+recordId+'\''});
+        System.debug('getrecordbyid' + query);
         try
         {
-            String query = String.format('SELECT ID, {0} FROM {1} WHERE ID={2} LIMIT 1', new List<String>{nameField, objectAPIName, '\''+recordId+'\''});
             SObject record = Database.query(query);
             recordDetails.put('Name', String.valueOf(record.get(nameField)));
             recordDetails.put('Id', String.valueOf(record.get('id')));
@@ -283,10 +277,9 @@ public with sharing class CrossReferencesAPI
         }
     }
 
-    // Fetch the API name of the name field of the entity with the specified API name. Every object in Salesforce has a name field although the API name of the field may be different.
     static String getNameField(String objectAPIName)
     {
-        String nameFieldQuery = 'SELECT QualifiedApiName FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName ='+'\''+objectAPIName+'\''  +'AND IsNameField = TRUE LIMIT 1';
+        String nameFieldQuery = 'SELECT QualifiedApiName FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName =' + '\'' + objectAPIName + '\''  + 'AND IsNameField = TRUE LIMIT 1';
         try
         {
             SObject nameFieldObject= Database.query(nameFieldQuery);
@@ -302,7 +295,6 @@ public with sharing class CrossReferencesAPI
     
     }
 
-    // Fetch the API name of the entity of which the record with the passed record ID is an instance.
     static String getObjectAPINameFromId(Id recordId)
     {
         try 

@@ -24,6 +24,7 @@ export default class entityGraphicalDisplay extends LightningElement
         {
             const entityClickEvent = new CustomEvent('fetchdetailsforentity', { detail: entityName });
             this.dispatchEvent(entityClickEvent);
+
         }
 
     }
@@ -114,7 +115,7 @@ export default class entityGraphicalDisplay extends LightningElement
                 .attr("class", "node");
         
             var circles = nodeElements.append("circle")
-                .attr("r", 8);
+                .attr("r", 5);
         
             var labels = nodeElements.append("text")
                 .text(function(d) { return d.name; })

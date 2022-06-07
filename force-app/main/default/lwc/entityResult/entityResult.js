@@ -54,9 +54,7 @@ export default class EntityResult extends LightningElement
 
     fetchDetailsForEntity(event)
     {
-        console.log('YEE HAA');
         const entityName = event.detail;
-        console.log('This clicked haha: ', entityName);
 
         if(this.isEntityCustom(entityName.trim()))
         {

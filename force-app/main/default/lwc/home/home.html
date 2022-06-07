@@ -3,28 +3,24 @@
         <div class="radioGroupLabel">
             <h1 class="slds-m-around_small slds-text-heading_medium">What do you want to obtain cross references for?</h1>
         </div>
-        <div class="slds-p-left_small">
+        <div class="slds-p-left_small ">
             <lightning-radio-group name="radioGroup"
             options={options}
-            onchange={test}
+            onchange={radioSelectionChange}
             value={value}
             type="radio"></lightning-radio-group>    
         </div>
-            
 
         <template if:true={showEntityResult}>
             <c-entity-result custom-object-api-names={customObjectAPINames}></c-entity-result>
         </template>
-
+        <div></div>
         <template if:true={showRecordResult}>
             <c-record-result></c-record-result>
         </template>
 
     </lightning-card>
-    <!-- <h1>Let's see if this works!</h1>
-    <lightning-card>
-        <c-entity-graphical-display graph={}></c-entity-graphical-display>
-    </lightning-card> -->
+    
   </template>
 
 

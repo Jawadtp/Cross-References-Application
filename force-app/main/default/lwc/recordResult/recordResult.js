@@ -13,7 +13,6 @@ export default class RecordResult extends LightningElement
 
     showSpinner=false;
 
-
     @track
     children=[];
 
@@ -49,7 +48,7 @@ export default class RecordResult extends LightningElement
     {
         var records = [];
 
-        for(var objectMetaData of Object.keys(data))
+        for(let objectMetaData of Object.keys(data))
         {
             const objectMetaDataList = objectMetaData.split(',');
             records.push({Name: objectMetaDataList[0],  RelationshipType: objectMetaDataList[1], NameField: objectMetaDataList[2], Records: data[objectMetaData]})
@@ -70,7 +69,7 @@ export default class RecordResult extends LightningElement
         this.isIdInvalid=false;
 
         this.inputText = this.inputText.trim();
-        if(this.inputText=='')
+        if(this.inputText==='')
             return;
 
         this.showSpinner=true;
@@ -83,6 +82,9 @@ export default class RecordResult extends LightningElement
             childData = await getChildRecords({recordId: this.inputText});
             parentData = await getParentRecords({recordId: this.inputText});
             currentRecordDetails = await getRecordById({recordId: this.inputText});
+            console.log('child records: ', JSON.stringify(childData));
+            console.log('parent records: ', JSON.stringify(parentData));
+
         }
         catch(e)
         {

@@ -1,5 +1,6 @@
 import { LightningElement, track } from 'lwc';
 import getCustomObjectAPINames from "@salesforce/apex/CrossReferencesAPI.getCustomObjectAPINames";
+import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
 
 
@@ -8,12 +9,17 @@ export default class Home extends LightningElement
 {
 
     inputText='';
+    error='';
 
     @track parents={};
     @track children={};
 
     @track customObjectAPINames = [];
 
+    get graphFromParentsAndChildren()
+    {
+        graph=[];        
+    }
     showResult=false;
 
     value = 'entity';
@@ -23,19 +29,39 @@ export default class Home extends LightningElement
         this.fetchCustomObjectAPINames()
     }
 
+    get hasErrorOccured()
+    {
+        return this.error!=='';
+    }
+
     async fetchCustomObjectAPINames()
     {
-        const apiNames = await getCustomObjectAPINames();
+        let apiNames;
+        
+        apiNames = await getCustomObjectAPINames( );
 
+        console.log(JSON.stringify(apiNames));
         let customObjectAPINames = [];
 
-        apiNames.forEach((apiName)=>{
-            customObjectAPINames.push({
-                label: apiName,
-                value: apiName
-            })
-        });
-
+        if(apiNames.status===400)
+        {
+            this.error=apiNames.body.message;
+            const evt = new ShowToastEvent({
+                title: 'An error has occured',
+                message: this.error,
+                variant: 'error',
+            });
+            this.dispatchEvent(evt);
+        }
+        else
+        {
+            this.error='';
+            apiNames.forEach((apiName)=>{
+                customObjectAPINames.push({
+                    label: apiName,
+                    value: apiName
+                })});
+        }
         this.customObjectAPINames=customObjectAPINames;
     }
 
@@ -54,7 +80,7 @@ export default class Home extends LightningElement
         ];
     }
 
-    test(event)
+    radioSelectionChange(event)
     {
         console.log(event.detail.value)
         this.value=event.detail.value
@@ -85,9 +111,7 @@ export default class Home extends LightningElement
 
      onSubmitClick()
     {
-     
       this.showResult=true;
-       console.log('Submit clicked')
     }
 
 

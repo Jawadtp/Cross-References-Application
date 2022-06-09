@@ -1,4 +1,5 @@
 <template>
+    
     <template if:true={isRelatedRecordsEmpty}>
         * No related records found.
     </template>
@@ -8,30 +9,14 @@
     </template>
 
 
-    <lightning-accordion allow-multiple-sections-open active-section-name={activeSections}>
 
-        <template for:each={relatedRecordsActive} for:item="relatedRecord">
+        <template for:each={entityList} for:item="entity">
             
-            <lightning-accordion-section key={relatedRecord.Name} name={relatedRecord.Name} label={relatedRecord.AccordionDisplayName}>
-                
-                <template for:each={relatedRecord.Records} for:item="record">
-                    <div class="record" key={record.Id}  data-item={record.Id} onclick={onRecordClick}>
-                        <div class="nameField">
-                            {relatedRecord.NameField}
-                        </div>
-                        <div class="recordName slds-text-title_bold slds-text-heading_large">
-                            {record.Name} 
-                        </div>
-                    </div>
-                </template>
-
-            </lightning-accordion-section>
+            <c-records-of-entity search-key={searchKey} onfetchrelatedrecords={onRecordClick} record-id={recordId} key={entity.Name} entity-details={entity} ></c-records-of-entity>
 
         
         </template>
 
-        <template for:each={relatedRecords} for:item="relatedRecord">
-            </template>
-    </lightning-accordion>
+       
 
 </template>

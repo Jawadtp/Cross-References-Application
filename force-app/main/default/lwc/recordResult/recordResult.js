@@ -4,6 +4,8 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getChildRecords from "@salesforce/apex/CrossReferencesAPI.getChildRecords";
 import getParentRecords from "@salesforce/apex/CrossReferencesAPI.getParentRecords";
 import getRecordById from "@salesforce/apex/CrossReferencesAPI.getRecordById";
+import getChildEntityDetails from  "@salesforce/apex/CrossReferencesAPI.getChildEntityDetails";
+import getParentEntityDetails from '@salesforce/apex/CrossReferencesAPI.getParentEntityDetails';
 
 export default class RecordResult extends LightningElement 
 {
@@ -59,7 +61,8 @@ export default class RecordResult extends LightningElement
 
    fetchClickedRecord(event)
     {
-        console.log('Here ', event.detail);
+        console.log('Record click reached recordResult, ID ', event.detail);
+
         this.inputText=event.detail;
         this.fetchRecords();
     }
@@ -79,8 +82,8 @@ export default class RecordResult extends LightningElement
         let currentRecordDetails;
         try
         {
-            childData = await getChildRecords({recordId: this.inputText});
-            parentData = await getParentRecords({recordId: this.inputText});
+            childData = await getChildEntityDetails({recordId: this.inputText});
+            parentData = await getParentEntityDetails({recordId: this.inputText});
             currentRecordDetails = await getRecordById({recordId: this.inputText});
             console.log('child records: ', JSON.stringify(childData));
             console.log('parent records: ', JSON.stringify(parentData));
@@ -100,11 +103,10 @@ export default class RecordResult extends LightningElement
 
         console.log('Parent data: ', JSON.stringify(parentData))
      
-        this.children = this.getRecordListFromAPIData(childData);
-        this.parents = this.getRecordListFromAPIData(parentData);
+        this.children = childData;
+        this.parents = parentData;
        this.currentRecordDetails = currentRecordDetails;
 
-        console.log('Records are: ',this.children);
 
         this.isDataFetched=true;
 

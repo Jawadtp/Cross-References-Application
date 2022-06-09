@@ -31,12 +31,12 @@
 
         <div class="recordResultWrapper">
             <h1 class="slds-text-title_bold">Parent records </h1>
-            <c-records-display onfetchrelatedrecords={fetchClickedRecord} related-records={parents}></c-records-display>
+            <c-records-display record-id={inputText} onfetchrelatedrecords={fetchClickedRecord} entity-list={parents}></c-records-display>
         </div>
 
         <div class="recordResultWrapper">
             <h1 class="slds-text-title_bold">Child records </h1>
-            <c-records-display onfetchrelatedrecords={fetchClickedRecord} related-records={children}></c-records-display>              
+            <c-records-display record-id={inputText} onfetchrelatedrecords={fetchClickedRecord} entity-list={children}></c-records-display>              
         </div>
 
     </template>

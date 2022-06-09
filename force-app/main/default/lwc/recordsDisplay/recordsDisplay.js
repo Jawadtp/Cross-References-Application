@@ -2,116 +2,66 @@ import { LightningElement, api, track } from 'lwc';
 
 export default class RecordsDisplay extends LightningElement 
 {
-    //@api relatedRecords;
-    @track _relatedRecords;
-    @track activeSections=[];
-    @track relatedRecordsActive=[];
-    inputText='';
 
-    relatedRecordsOriginal;
-    activeSectionsOriginal;
-    
-    @api
-    get relatedRecords() 
+    inputText = '';
+    searchKey = '';
+    timeout=null;
+    @track activeSections = [];
+
+    @api entityList;
+    @api recordId;
+
+    connectedCallback()
     {
-        return this._relatedRecords;
+        this.initialiseActiveSections();
+        console.log('recordsDisplay called for entities: ' + JSON.stringify(this.entityList));
     }
-    set relatedRecords(value) 
+
+    initialiseActiveSections()
     {
-        this.setAttribute('relatedRecords', value);
-        this._relatedRecords = value;
-        this.setup();
-    }
-   
-    setup()
-   {
-        let relatedRecordsActive=[];
-        let activeSections=[]; 
-        this._relatedRecords.forEach((record)=> 
-        {
-            activeSections.push(record.Name);
-            relatedRecordsActive.push({...record, AccordionDisplayName: record.Name + ' (' + record.RelationshipType+') - ' + record.Records.length + ' record' + (record.Records.length===1?'':'s')});
+        let activeSections = [];
+        this.entityList.forEach((entity)=> {
+            activeSections.push(entity.Name);
         });
-
         Promise.resolve().then(() => {
             this.activeSections=activeSections;
-            this.activeSectionsOriginal=activeSections;
         });
-
-        this.relatedRecordsActive=relatedRecordsActive;
-        this.relatedRecordsOriginal=relatedRecordsActive;
-        console.log(this.relatedRecordsActive)
-        console.log('Active sections: ', JSON.stringify(this.activeSections));
-   }   
-   
-    get isRelatedRecordsEmpty()
-    {
-        return this._relatedRecords.length==0;
-    }
-   
-    get showSearchRecords()
-    {
-        if(this._relatedRecords.length>0)
-            return true;
-        return false;
     }
 
     handleSearchInputChange(event)
-    {   
-    
+    {
         this.inputText=event.target.value;
-    
-        const searchKey = event.target.value.toLowerCase();;
+        clearTimeout(this.timeout);
+        // eslint-disable-next-line @lwc/lwc/no-async-operation
+        this.timeout = setTimeout(() => {
+            this.searchKey = this.inputText;
+            console.log('Searching for', this.searchKey);
+          }, 1000);
 
-        if(searchKey!=='')
-        {
-            let filteredRecords = [];
+    }
 
-            let activeSections = [];
-
-            this._relatedRecords.forEach((groupOfRecords)=> 
-            {
-                let recordsInGroup = [];
-
-                groupOfRecords.Records.forEach((record)=>{
-                     if(record.Name.toLowerCase().includes(searchKey))
-                         recordsInGroup.push(record);
-                });
-
-
-                if(recordsInGroup.length>0)
-                {
-                     activeSections.push(groupOfRecords.Name);
-                    filteredRecords.push({...groupOfRecords, Records: recordsInGroup, AccordionDisplayName:  groupOfRecords.Name + ' (' + groupOfRecords.RelationshipType+') - ' + recordsInGroup.length + ' record' + (recordsInGroup.length===1?'':'s')});
-                }
-            });
-           
-            Promise.resolve().then(() => {
-                this.activeSections=activeSections;
-            });
-            this.relatedRecordsActive = filteredRecords;
-        }
-        else
-        {
-            console.log('Empty search query. Displaying everything..');
-            this.relatedRecordsActive=this.relatedRecordsOriginal;
-            Promise.resolve().then(() => {
-                this.activeSections=this.activeSectionsOriginal;
-            });
-        }
-
-        console.log('Active sections: ' + this.activeSections);
-
+    handleSearchButton()
+    {
+        this.searchKey=this.inputText;
     }
 
     onRecordClick(event)
     {
-        this.hasRendered=false;
-        this.inputText='';
-        console.log('Resetting input text..');
-        const recordId = event.currentTarget.getAttribute('data-item');
+        
+        console.log('Record click reached recordsDisplay, ID ', event.detail);
+        const recordId = event.detail;
         const recordClickEvent = new CustomEvent('fetchrelatedrecords', { detail: recordId });
         this.dispatchEvent(recordClickEvent);
-        console.log('Clicked record id: ', recordId);
     }
+
+    get isRelatedRecordsEmpty()
+    {
+        return this.entityList.length===0;
+    }
+
+    get showSearchRecords()
+    {
+        return this.entityList.length>0;
+    }
+
 }

@@ -49,6 +49,8 @@ export default class RecordsDisplay extends LightningElement
     {
         
         console.log('Record click reached recordsDisplay, ID ', event.detail);
+        this.inputText='';
+        this.searchKey='';
         const recordId = event.detail;
         const recordClickEvent = new CustomEvent('fetchrelatedrecords', { detail: recordId });
         this.dispatchEvent(recordClickEvent);

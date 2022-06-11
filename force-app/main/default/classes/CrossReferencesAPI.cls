@@ -1,4 +1,4 @@
-public with sharing class CrossReferencesAPI 
+public class CrossReferencesAPI 
 {   
     // This set contains child entities that are common to most entities (hence doesn't make sense to display them).
     private static Set<String> entityIgnoreList = new Set<String> 
@@ -138,18 +138,31 @@ public with sharing class CrossReferencesAPI
     }
 
 
-   
-    // Fetch details for the record with the given record ID.
-    @AuraEnabled
-    public static Map<String, String> getRecordById(Id recordId)
+     @AuraEnabled
+    public static Map<String, String> getRecordById(String recordId)
     {
-        String objectAPIName = recordId.getSObjectType().getDescribe().getName();
+        if((recordId instanceof Id)==false) return null;
+        String objectAPIName;
+        Id rId;
+
+        try
+        {
+            rId = Id.valueOf(recordId.trim());
+            objectAPIName = rId.getSObjectType().getDescribe().getName();
+
+        }
+        catch(Exception e)
+        {
+            System.debug(e);
+            return null;
+        }
+
         Map<String, String> recordDetails = new Map<String, String>();
         String nameField = getNameField(objectAPIName);
         
         try
         {
-            String query = String.format('SELECT ID, {0} FROM {1} WHERE ID={2} LIMIT 1', new List<String>{nameField, objectAPIName, '\''+recordId+'\''});
+            String query = String.format('SELECT ID, {0} FROM {1} WHERE ID={2} LIMIT 1', new List<String>{nameField, objectAPIName, '\''+rId+'\''});
             SObject record = Database.query(query);
             recordDetails.put('Name', String.valueOf(record.get(nameField)));
             recordDetails.put('Id', String.valueOf(record.get('id')));
@@ -162,6 +175,7 @@ public with sharing class CrossReferencesAPI
             return null;
         }
     }
+
 
 
     // Fetches the meta data of all parent entities of the passed record that have at least one record as a parent record to the passed record. 
@@ -185,13 +199,13 @@ public with sharing class CrossReferencesAPI
                 parentName = parentName.Substring(1, parentName.length()-1); // Parent name is returned in the format (name). () are removed.     
                 String nameField = getNameField(parentName);
                 
-                if(nameField==null || parentName==objectAPIName || parentNames.contains(parentName))
+                if(nameField==null || parentName=='Asset' || parentName==objectAPIName || parentNames.contains(parentName))
                     continue;
                 
                 parentNames.add(parentName);
 
                 Integer relationshipOrder = field.getDescribe().getRelationshipOrder();          
-                String relationshipType = relationshipOrder==null?'Lookup':'Master-Detail';                
+                String relationshipType = relationshipOrder==null?'Look up':'Master-Detail';                
                 
                 String parentNameModified=parentName;
 
@@ -200,7 +214,7 @@ public with sharing class CrossReferencesAPI
                         
                 try
                 {
-                    String query = String.format('SELECT COUNT({0}.id) FROM {1} WHERE ID = {2}', new List<String>{parentNameModified, objectAPIName, '\''+recordId+'\'', parentNameModified, '\'' + '%' + 'null' + '%' + '\''}); 
+                    String query = String.format('SELECT COUNT({0}.id) FROM {1} WHERE ID = {2} AND {0}.ID!=NULL', new List<String>{parentNameModified, objectAPIName, '\''+recordId+'\'', parentNameModified, '\'' + '%' + 'null' + '%' + '\''}); 
                     System.debug(query);
                     SObject queryResult = Database.query(query);
                     Integer numberOfRecords = Integer.valueOf(queryResult.get('expr0'));
@@ -293,6 +307,7 @@ public with sharing class CrossReferencesAPI
 
     }
 
+
     // Returns the list of all parent records of entity type objectAPIName for the record with the specified ID. 
     @AuraEnabled
     public static List<Map<String, String>> getRelatedParentRecords(Id recordId, String objectAPIName, String searchKey, Integer numberOfRecords, Integer pageNumber)
@@ -371,7 +386,11 @@ public with sharing class CrossReferencesAPI
     public static Integer getChildRecordCount(Id recordId, String childObjectName, String searchKey)
     {
         String objectAPIName = recordId.getSObjectType().getDescribe().getName();
+        if(isObjectCustom(objectAPIName))
+            objectAPIName = objectAPIName.replace('__c', '__r');
+        
         String nameField = getNameField(childObjectName);
+
         String query = String.format('SELECT COUNT(ID) FROM {0} WHERE {1}.ID = {2} AND {3} LIKE {4}', new List<String>{childObjectName, objectAPIName, '\'' + recordId + '\'', nameField, '\'' + '%' + searchKey + '%' + '\''});
         System.debug(query); 
         
@@ -394,11 +413,15 @@ public with sharing class CrossReferencesAPI
     {
         String objectAPIName = getObjectAPINameFromId(recordId); // objectAPIName is null for invalid record IDs.
         
+        
+
         if(objectAPIName==null) 
             throw new AuraHandledException('Invalid ID');
         
         String nameField = getNameField(parentObjectName);
         
+        if(isObjectCustom(parentObjectName))
+            parentObjectName = parentObjectName.replace('__c', '__r');
 
         String query = String.format('SELECT COUNT({0}.id) FROM {1} WHERE ID = {2} AND {3}.{4} LIKE {5}', new List<String>{parentObjectName, objectAPIName, '\''+recordId+'\'', parentObjectName, nameField, '\'' + '%' + searchKey + '%' + '\''}); 
         System.debug(query);
@@ -416,7 +439,7 @@ public with sharing class CrossReferencesAPI
     }
 
     // Fetch the API name of the name field of the entity with the specified API name. Every object in Salesforce has a name field although the API name of the field may be different.
-    static String getNameField(String objectAPIName)
+    public static String getNameField(String objectAPIName)
     {
         String nameFieldQuery = 'SELECT QualifiedApiName FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName ='+'\''+objectAPIName+'\''  +'AND IsNameField = TRUE LIMIT 1';
         try
@@ -434,12 +457,12 @@ public with sharing class CrossReferencesAPI
     
     }
 
-    // Fetch the API name of the entity of which the record with the passed record ID is an instance.
-    static String getObjectAPINameFromId(Id recordId)
+    //Fetch the API name of the entity of which the record with the passed record ID is an instance.
+    public static String getObjectAPINameFromId(String recordId)
     {
         try 
         {
-            String name = recordId.getSObjectType().getDescribe().getName();
+            String name = Id.valueOf(recordId).getSObjectType().getDescribe().getName();
             return name;
 
         } catch (Exception e) 
@@ -448,8 +471,9 @@ public with sharing class CrossReferencesAPI
         }
     }
 
+
     // A straightforward way to check if an object is custom without invoking any Schema Namespace functions.
-    static Boolean isObjectCustom(String objectAPIName)
+    public static Boolean isObjectCustom(String objectAPIName)
     {
         return objectAPIName.substring(objectAPIName.length()-3)=='__c';     
     }

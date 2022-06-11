@@ -111,11 +111,14 @@ export default class RecordsOfEntity extends LightningElement
 
         console.log('Records fetched: ', JSON.stringify(this.records));
 
+        console.log('Number of pages: ', this.numberOfPages);
+        console.log('Updated array: ', JSON.stringify(this.records));
+
         this.recordsCache[this.pageNumber-1] = this.records;
 
         this.isLoading=false;
 
-        this.accordionLabel = `${this.entityDetails.Name} (${this.entityDetails.RelationshipType}) - ${this.numberOfRecords} record${this.numberOfRecords===1?'':'s'}`;
+        this.accordionLabel = `${this.entityDetails.Name} (${this.entityDetails.RelationshipType}) - ${this.numberOfRecords} record${this.numberOfRecords==1?'':'s'}`;
 
     }
 
@@ -141,6 +144,7 @@ export default class RecordsOfEntity extends LightningElement
 
     onRecordClick(event)
     {
+    
         const recordId = event.currentTarget.getAttribute('data-item');
         const recordClickEvent = new CustomEvent('fetchrelatedrecords', { detail: recordId });
         this.dispatchEvent(recordClickEvent);

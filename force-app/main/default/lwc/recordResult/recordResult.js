@@ -1,8 +1,7 @@
 import { LightningElement, track } from 'lwc';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 
-import getChildRecords from "@salesforce/apex/CrossReferencesAPI.getChildRecords";
-import getParentRecords from "@salesforce/apex/CrossReferencesAPI.getParentRecords";
+
 import getRecordById from "@salesforce/apex/CrossReferencesAPI.getRecordById";
 import getChildEntityDetails from  "@salesforce/apex/CrossReferencesAPI.getChildEntityDetails";
 import getParentEntityDetails from '@salesforce/apex/CrossReferencesAPI.getParentEntityDetails';
@@ -38,7 +37,7 @@ export default class RecordResult extends LightningElement
         
     }
 
-   onClearResultClick(event)
+   onClearResultClick()
    {
        console.log('Cleared');
        this.children=this.parents=[];
@@ -85,13 +84,17 @@ export default class RecordResult extends LightningElement
             childData = await getChildEntityDetails({recordId: this.inputText});
             parentData = await getParentEntityDetails({recordId: this.inputText});
             currentRecordDetails = await getRecordById({recordId: this.inputText});
+            
             console.log('child records: ', JSON.stringify(childData));
             console.log('parent records: ', JSON.stringify(parentData));
+            console.log('Current record details: ', JSON.stringify(currentRecordDetails));
+
 
         }
         catch(e)
         {
             this.showSpinner=false; 
+            console.error(JSON.stringify(e));
             const evt = new ShowToastEvent({
                 title: 'Invalid record ID',
                 message: 'No record could be found with the entered record ID',

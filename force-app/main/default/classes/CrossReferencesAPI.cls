@@ -70,7 +70,8 @@ public class CrossReferencesAPI
     public static List<Map<String, String>> getParents(String objectName)
     {
         SObjectType objectType = Schema.getGlobalDescribe().get(objectName);
-                
+        if(objectType==null) return null;
+
         List<Map<String, String>> parents = new List<Map<String, String>>();
 
         Set<String> parentNames = new Set<String>(); //Parent names as they are encountered are added to this set. If the same parent count is encountered again, it is ignored to avoid duplicate results.
@@ -111,6 +112,8 @@ public class CrossReferencesAPI
         Set<String> childNames = new Set<String>();
 
         SObjectType objectType = Schema.getGlobalDescribe().get(objectName);
+        if(objectType==null) return null;
+
         Schema.DescribeSObjectResult R = objectType.getDescribe(); 
         List<Schema.ChildRelationship> C = R.getChildRelationships();
         

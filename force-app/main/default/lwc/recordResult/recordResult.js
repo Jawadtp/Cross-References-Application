@@ -89,22 +89,16 @@ export default class RecordResult extends LightningElement
             console.log('parent records: ', JSON.stringify(parentData));
             console.log('Current record details: ', JSON.stringify(currentRecordDetails));
 
-
+            if(currentRecordDetails.hasOwnProperty('ok') && !currentRecordDetails.ok || childData.hasOwnProperty('ok') && !childData.ok || parentData.hasOwnProperty('ok') && !parentData.ok)
+                this.showError();
         }
         catch(e)
         {
-            this.showSpinner=false; 
-            console.error(JSON.stringify(e));
-            const evt = new ShowToastEvent({
-                title: 'Invalid record ID',
-                message: 'No record could be found with the entered record ID',
-                variant: 'error',
-            });
-            this.dispatchEvent(evt);
+            console.error(e);
+            this.showError();
             return;
         }
 
-        console.log('Parent data: ', JSON.stringify(parentData))
      
         this.children = childData;
         this.parents = parentData;
@@ -114,6 +108,17 @@ export default class RecordResult extends LightningElement
         this.isDataFetched=true;
 
         this.showSpinner=false; 
+    }
+
+    showError()
+    {
+        this.showSpinner=false; 
+            const evt = new ShowToastEvent({
+                title: 'Invalid record ID',
+                message: 'No record could be found with the entered record ID',
+                variant: 'error',
+            });
+            this.dispatchEvent(evt);
     }
 
     onSubmitClick()

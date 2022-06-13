@@ -16,10 +16,7 @@ export default class Home extends LightningElement
 
     @track customObjectAPINames = [];
 
-    get graphFromParentsAndChildren()
-    {
-        graph=[];        
-    }
+    
     showResult=false;
 
     value = 'entity';

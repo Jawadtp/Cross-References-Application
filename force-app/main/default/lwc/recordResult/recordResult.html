@@ -10,36 +10,38 @@
         <lightning-spinner alternative-text="Fetching records.."></lightning-spinner>
     </template>
 
-    <template if:true={isDataFetched}>
 
-        <div class="recordResultOuterWrapper">
-            <div class="currentRecordTitle">
-               <div class="enteredRecordText"> Entered record </div>
+    <div class="dataWrapper">
+        <template if:true={isDataFetched}>
+
+            <div class="recordResultOuterWrapper">
+                <div class="currentRecordTitle">
+                <div class="enteredRecordText"> Entered record </div>
+                </div>
+                <div class="currentRecordCard">
+                    <div class="exitButton" onclick={onClearResultClick}>
+                        X
+                    </div>
+                    <div class="nameField">
+                        {currentRecordDetails.NameField}
+                    </div>
+                    <div class="recordName slds-text-title_bold slds-text-heading_large">
+                        {currentRecordDetails.Name} 
+                    </div>
+                </div>
             </div>
-            <div class="currentRecordCard">
-                <div class="exitButton" onclick={onClearResultClick}>
-                    X
-                </div>
-                <div class="nameField">
-                    {currentRecordDetails.NameField}
-                </div>
-                <div class="recordName slds-text-title_bold slds-text-heading_large">
-                    {currentRecordDetails.Name} 
-                </div>
+
+            <div class="recordResultWrapper parentRecords">
+                <h1 class="slds-text-title_bold">Parent records </h1>
+                <c-records-display record-id={inputText} onfetchrelatedrecords={fetchClickedRecord} entity-list={parents}></c-records-display>
             </div>
-        </div>
 
-        <div class="recordResultWrapper">
-            <h1 class="slds-text-title_bold">Parent records </h1>
-            <c-records-display record-id={inputText} onfetchrelatedrecords={fetchClickedRecord} entity-list={parents}></c-records-display>
-        </div>
+            <div class="recordResultWrapper childRecords">
+                <h1 class="slds-text-title_bold">Child records </h1>
+                <c-records-display record-id={inputText} onfetchrelatedrecords={fetchClickedRecord} entity-list={children}></c-records-display>              
+            </div>
 
-        <div class="recordResultWrapper">
-            <h1 class="slds-text-title_bold">Child records </h1>
-            <c-records-display record-id={inputText} onfetchrelatedrecords={fetchClickedRecord} entity-list={children}></c-records-display>              
-        </div>
-
-    </template>
-
+        </template>
+    </div>
 
 </template>

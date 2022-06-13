@@ -1,22 +1,17 @@
 <template>
     
     <template if:true={isRelatedRecordsEmpty}>
+        <div class="noRecordsFound">
         * No related records found.
+        </div>
     </template>
 
     <template if:true={showSearchRecords}>
         <lightning-input type="text" onchange={handleSearchInputChange} value={inputText} placeholder="Enter record name to search.." variant="label-hidden" class="searchInput slds-m-around_small"></lightning-input>
     </template>
 
-
-
-        <template for:each={entityList} for:item="entity">
-            
-            <c-records-of-entity search-key={searchKey} onfetchrelatedrecords={onRecordClick} record-id={recordId} key={entity.Name} entity-details={entity} ></c-records-of-entity>
-
-        
-        </template>
-
-       
+    <template for:each={entityList} for:item="entity">
+        <c-records-of-entity search-key={searchKey} onfetchrelatedrecords={onRecordClick} record-id={recordId} key={entity.Name} entity-details={entity} ></c-records-of-entity>
+    </template>
 
 </template>

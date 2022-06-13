@@ -46,27 +46,6 @@ describe('Unit tests for home.js', () => {
      expect(div.textContent).toBe('What do you want to obtain cross references for?');
   });
 
-//   it('Testing conditional rendering', () => 
-//   {
-//     getCustomObjectAPINames.mockResolvedValue(APEX_APINAMESLIST_SUCCESS);
-
-//     const element = createElement('c-home', {
-//         is: home
-//       });
-     
-  
-//       document.body.appendChild(element);
-//      const radioGroup = element.shadowRoot.querySelector('lightning-radio-group');
-//      radioGroup.value='entity';
-//      radioGroup.dispatchEvent(new CustomEvent('change'));
-
-//      return Promise.resolve().then(()=>{
-//         const entityResultComponent = element.shadowRoot.querySelectorAll('c-entity-result');
-//         expect(entityResultComponent.length).toBe(1);
-//      });
-//  });
-
-
   
 
 });

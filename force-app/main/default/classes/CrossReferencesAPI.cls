@@ -70,7 +70,7 @@ public class CrossReferencesAPI
     public static List<Map<String, String>> getParents(String objectName)
     {
         SObjectType objectType = Schema.getGlobalDescribe().get(objectName);
-        if(objectType==null) return null;
+        if(objectType==null) throw new AuraHandledException('Invalid objectName passed');
 
         List<Map<String, String>> parents = new List<Map<String, String>>();
 
@@ -112,7 +112,7 @@ public class CrossReferencesAPI
         Set<String> childNames = new Set<String>();
 
         SObjectType objectType = Schema.getGlobalDescribe().get(objectName);
-        if(objectType==null) return null;
+        if(objectType==null) throw new AuraHandledException('Invalid objectName passed');
 
         Schema.DescribeSObjectResult R = objectType.getDescribe(); 
         List<Schema.ChildRelationship> C = R.getChildRelationships();
@@ -144,7 +144,7 @@ public class CrossReferencesAPI
      @AuraEnabled
     public static Map<String, String> getRecordById(String recordId)
     {
-        if((recordId instanceof Id)==false) return null;
+        if((recordId instanceof Id)==false) throw new AuraHandledException('Invalid record id');
         String objectAPIName;
         Id rId;
 
@@ -156,8 +156,7 @@ public class CrossReferencesAPI
         }
         catch(Exception e)
         {
-            System.debug(e);
-            return null;
+            throw new AuraHandledException('Invalid record id');
         }
 
         Map<String, String> recordDetails = new Map<String, String>();
@@ -174,8 +173,7 @@ public class CrossReferencesAPI
         }
         catch(Exception e)
         {
-            System.debug(e);
-            return null;
+            throw new AuraHandledException('Error occured');
         }
     }
 
@@ -189,7 +187,7 @@ public class CrossReferencesAPI
         String objectAPIName = getObjectAPINameFromId(recordId); // objectAPIName is null for invalid record IDs.
         
         if(objectAPIName==null) 
-            throw new AuraHandledException('Invalid ID');
+            throw new AuraHandledException('Invalid id');
         
         SObjectType objectType = Schema.getGlobalDescribe().get(objectAPIName);
         Set<String> parentNames = new Set<String>();
@@ -405,7 +403,7 @@ public class CrossReferencesAPI
         }
         catch(Exception e)
         {
-            return null;
+            throw new AuraHandledException('Invalid input');
         }
         
     }
@@ -436,7 +434,7 @@ public class CrossReferencesAPI
         }
         catch(Exception e)
         {
-            return null;
+            throw new AuraHandledException('Invalid input');
         }
                     
     }
@@ -456,6 +454,7 @@ public class CrossReferencesAPI
             System.debug('Exception for '+objectAPIName);
             System.debug(e);
             return null;
+            //throw new AuraHandledException('Invalid input');
         }
     
     }
@@ -470,7 +469,7 @@ public class CrossReferencesAPI
 
         } catch (Exception e) 
         {
-            return null;    
+            throw new AuraHandledException('Invalid input');
         }
     }
 

@@ -3,13 +3,9 @@ import getRelatedChildRecords from "@salesforce/apex/CrossReferencesAPI.getRelat
 import getRelatedParentRecords from "@salesforce/apex/CrossReferencesAPI.getRelatedParentRecords";
 import getParentRecordCount from "@salesforce/apex/CrossReferencesAPI.getParentRecordCount";
 import getChildRecordCount from "@salesforce/apex/CrossReferencesAPI.getChildRecordCount";
+import { NUMBER_OF_RECORDS_PER_PAGE } from 'c/utils';
 
 
-//getParentRecordCount(Id recordId, String parentObjectName, String searchKey)
-
-const NUMBER_OF_RECORDS_PER_PAGE = 5;
-
-//getRelatedChildRecords(Id recordId, String objectAPIName, String searchKey, Integer numberOfRecords, Integer pageNumber)
 export default class RecordsOfEntity extends LightningElement 
 {
 

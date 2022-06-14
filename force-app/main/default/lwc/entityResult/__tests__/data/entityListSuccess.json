@@ -1,0 +1,4 @@
+[
+  { "Name": "User", "RelationshipType": "Look up", "Id": "0" },
+  { "Name": "Broker__c", "RelationshipType": "Look up", "Id": "1" }
+]

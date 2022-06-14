@@ -11,6 +11,7 @@
                 
 
                 <template if:true={areRecordsFetched}>
+                    
                     <template for:each={records} for:item="record">
                         <div class="record" key={record.Id}  data-item={record.Id} onclick={onRecordClick}>
                             <div class="nameField">
@@ -26,9 +27,9 @@
 
                 <template if:true={showPaginationButtons}>
                     <div class="paginationButtons slds-grid_align-center">
-                        <lightning-button-icon size="small" disabled={disablePreviousButton} icon-name="utility:chevronleft" onclick={handlePreviousPageClick} alternative-text="Previous page" title="Previous page"></lightning-button-icon>
+                        <lightning-button-icon class="previousButton" size="small" disabled={disablePreviousButton} icon-name="utility:chevronleft" onclick={handlePreviousPageClick} alternative-text="Previous page" title="Previous page"></lightning-button-icon>
                         <span class="pageNumber">Page {pageNumber} of {numberOfPages}</span>
-                        <lightning-button-icon size="small" disabled={disableNextButton} icon-name="utility:chevronright" onclick={handleNextPageClick} alternative-text="Next page" title="Next page"></lightning-button-icon>
+                        <lightning-button-icon class="nextButton" size="small" disabled={disableNextButton} icon-name="utility:chevronright" onclick={handleNextPageClick} alternative-text="Next page" title="Next page"></lightning-button-icon>
                     </div>
                 </template>
 

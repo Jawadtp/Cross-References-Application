@@ -46,7 +46,7 @@ export default class EntityResult extends LightningElement
     isEntityCustom(entityName)
     {
 
-        for(var i=0; i<this.customObjectApiNames.length; i++)
+        for(let i=0; i<this.customObjectApiNames.length; i++)
             if(this.customObjectApiNames[i].value===entityName)
                 return true;
         return false;
@@ -78,6 +78,7 @@ export default class EntityResult extends LightningElement
         this.parents=parentData;
         this.children=childData;
 
+        console.log('Parents for entity: ', JSON.stringify(this.parents));
         console.log('parent data updated');
 
         this.showSpinner=false;

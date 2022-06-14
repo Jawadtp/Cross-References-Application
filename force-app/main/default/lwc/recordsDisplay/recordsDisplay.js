@@ -1,4 +1,5 @@
 import { LightningElement, api, track } from 'lwc';
+import { SEARCH_WAIT_INTERVAL } from 'c/utils';
 
 export default class RecordsDisplay extends LightningElement 
 {
@@ -36,7 +37,7 @@ export default class RecordsDisplay extends LightningElement
         this.timeout = setTimeout(() => {
             this.searchKey = this.inputText;
             console.log('Searching for', this.searchKey);
-          }, 1000);
+          }, SEARCH_WAIT_INTERVAL);
 
     }
 

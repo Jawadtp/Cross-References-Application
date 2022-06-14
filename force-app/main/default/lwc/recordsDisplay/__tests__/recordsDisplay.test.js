@@ -12,7 +12,7 @@ describe('Unit tests for recordsDisplay.js', () => {
     beforeEach(()=> {
         element = createElement('c-records-display', {
             is: recordsDisplay
-          });
+            });
     });
 
   afterEach(() => {
@@ -50,7 +50,7 @@ describe('Unit tests for recordsDisplay.js', () => {
       element.recordId='1234';
       document.body.appendChild(element);
      const div = element.shadowRoot.querySelector('lightning-input');
-     expect(div).toBeDefined();
+     expect(div).toBeTruthy();
   });
 
   it('Ensure that search input is disabled when records are absent', () => 

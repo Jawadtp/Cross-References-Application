@@ -23,15 +23,28 @@ private class CrossReferencesAPITest
         Account acc = new Account(Name = 'Sample Name');
         insert acc;
         String name = CrossReferencesAPI.getObjectAPINameFromId(acc.Id);
-        String invalidIdResult = CrossReferencesAPI.getObjectAPINameFromId('1234');
-        String recordNotFound = CrossReferencesAPI.getObjectAPINameFromId('001Iw00ZZZZZZZZZZZ'); // Record with this ID will never get created (statistical likelihood of the event is pretty low). This, however, is a valid ID.
 
-        //Ensure that the API name returned is correct.
-        System.assertEquals('Account', name);
-        //Ensure that for an invalid ID, null is returned.
-        System.assertEquals(null, invalidIdResult);
-        //Ensure that for a valid ID corresponding to which a record doesn't exist, null is returned.
-        System.assertEquals(null, recordNotFound);
+         //Ensure that the API name returned is correct.
+         System.assertEquals('Account', name);
+
+         //Ensure that an exception is thrown when an invalid ID is passed.
+        try {
+            String invalidIdResult = CrossReferencesAPI.getObjectAPINameFromId('1234');
+            System.assert(false);
+        } catch (Exception e) {
+            System.assert(true);
+        }
+
+        //Ensure that an exception is thrown when a valid ID pertaining to which no record exists is passed.
+        try {
+            String recordNotFound = CrossReferencesAPI.getObjectAPINameFromId('001Iw00ZZZZZZZZZZZ'); // Record with this ID will never get created (statistical likelihood of the event is pretty low). This, however, is a valid ID.
+            System.assert(false);
+        } catch (Exception e) {
+            System.assert(true);
+        }
+
+       
+        
     }
 
     @isTest
@@ -39,12 +52,15 @@ private class CrossReferencesAPITest
     {
         String accountNameField = CrossReferencesAPI.getNameField('Account');
         String caseNameField = CrossReferencesAPI.getNameField('Case');
-        String invalidAccountNameField = CrossReferencesAPI.getNameField('..InvalidObject..');
 
         //Ensures that nameFields returned are correct (for standard objects).
         System.assertEquals('Name', accountNameField);
         System.assertEquals('CaseNumber', caseNameField);
-        System.assertEquals(null ,invalidAccountNameField);
+       
+        //Ensure that null is returned when an invalid object name is passed.
+        String invalidAccountNameField = CrossReferencesAPI.getNameField('..InvalidObject..');
+        System.assertEquals(null, invalidAccountNameField);
+
     }
 
      
@@ -65,13 +81,23 @@ private class CrossReferencesAPITest
         //Ensure that the inserted ID is fetched successfully.
         System.assertEquals(expected, result);
 
-        //Ensure that null is returned when an invalid ID is specified.
-        Map<String, String> resultInvalidId = CrossReferencesAPI.getRecordById('1234');
-        System.assertEquals(null, resultInvalidId);
+        //Ensure that an exception is thrown when an invalid ID is specified.
+        try {
+            Map<String, String> resultInvalidId = CrossReferencesAPI.getRecordById('1234'); 
 
-        //Ensure that null is returned when no record is found for a valid record ID (which is any string that follows Salesforce record ID rules).
-        Map<String, String> resultRecordNotFound = CrossReferencesAPI.getRecordById('001Iw00ZZZZZZZZZZZ');
-        System.assertEquals(null, resultRecordNotFound);
+            System.assert(false);
+        } catch (Exception e) {
+            System.assert(true);   
+        }
+
+        //Ensure that an exception is thrown when no record is found for a valid record ID (which is any string that follows Salesforce record ID rules).
+        try {
+            Map<String, String> resultRecordNotFound = CrossReferencesAPI.getRecordById('001Iw00ZZZZZZZZZZZ');
+            System.assert(false);
+        } catch (Exception e) {
+            System.assert(true);   
+        }
+        
 
     }
 
@@ -85,8 +111,6 @@ private class CrossReferencesAPITest
         Case cas = new Case(AccountId=acc.Id, ContactId=con.id);
         insert cas;
 
-
-        System.debug('ID of case: ' + cas.Id);
         List<Map<String,String>> parentRecords  = CrossReferencesAPI.getRelatedParentRecords(cas.Id, 'Account', '', 1, 0);
 
 
@@ -188,6 +212,12 @@ private class CrossReferencesAPITest
        // Ensure that entityDetails are not fetched when no child records of the respective entity are present.
         System.assertEquals(0, childEntityDetails_NoChildren.size());
 
+        try {
+            List<Map<String, String>> childEntityDetails_InvalidId = CrossReferencesAPI.getChildEntityDetails('1234');
+            System.assert(false);
+        } catch (Exception e) {
+            System.assert(true);
+        }
 
     }
 
@@ -232,6 +262,14 @@ private class CrossReferencesAPITest
         System.debug(parentEntityDetails_NoParents);
         System.assertEquals(0, parentEntityDetails_NoParents.size());
 
+        //Ensure that an exception is thrown when an invalid record id passed.
+        try {
+            List<Map<String, String>> parentEntityDetails_InvalidId = CrossReferencesAPI.getParentEntityDetails('1234');
+            System.assert(false);
+        } catch (Exception e) {
+            System.assert(true);
+        }
+
     }
 
 
@@ -260,9 +298,13 @@ private class CrossReferencesAPITest
         Integer childRecordCount_NoChildRecords = CrossReferencesAPI.getChildRecordCount(acc1.Id, 'Contact', '');
         System.assertEquals(0, childRecordCount_NoChildRecords);
 
-        // Ensure that a null value is returned when an invalid object name is entered.
-        Integer childRecordCount_InvalidObjectName = CrossReferencesAPI.getChildRecordCount(acc.Id, '*InvalidObjectName*', '');
-        System.assertEquals(null,childRecordCount_InvalidObjectName);
+        // Ensure that an exception is thrown when an invalid object name is entered.
+        try {
+            Integer childRecordCount_InvalidObjectName = CrossReferencesAPI.getChildRecordCount(acc.Id, '*InvalidObjectName*', '');
+            System.assert(false);
+        } catch (Exception e) {
+            System.assert(true);
+        }
     }
 
     @isTest
@@ -286,9 +328,13 @@ private class CrossReferencesAPITest
         Integer parentRecordCount_NoParentRecords = CrossReferencesAPI.getParentRecordCount(con2.id, 'Account', '');
         System.assertEquals(0, parentRecordCount_NoParentRecords);
 
-        // Ensure that a null value is returned when an invalid object name is entered.
-        Integer parentRecordCount_InvalidObjectName = CrossReferencesAPI.getParentRecordCount(con1.id, '*InvalidObjectName*', '');
-        System.assertEquals(null, parentRecordCount_InvalidObjectName);
+        // Ensure that an exception is thrown when an invalid object name is entered.
+        try {
+            Integer parentRecordCount_InvalidObjectName = CrossReferencesAPI.getParentRecordCount(con1.id, '*InvalidObjectName*', '');
+            System.assert(false);
+        } catch (Exception e) {
+            System.assert(true);
+        }
 
     }
 
@@ -313,9 +359,13 @@ private class CrossReferencesAPITest
         System.assertEquals('Contact', contactObjectName);
         System.assertEquals('Look up', contactObjectRelationshipType);
 
-        //Ensure that null is returned when an invalid object name is entered.
-        List<Map<String, String>> invalidObjectNameResult = CrossReferencesAPI.getChildren('*InvalidObjectName*');
-        System.assertEquals(null, invalidObjectNameResult);
+        //Ensure that an exception is thrown when an invalid object name is entered.
+        try {
+            List<Map<String, String>> invalidObjectNameResult = CrossReferencesAPI.getChildren('*InvalidObjectName*');
+            System.assert(false);
+        } catch (Exception e) {
+            System.assert(true);
+        }   
     }
 
     @IsTest
@@ -346,9 +396,14 @@ private class CrossReferencesAPITest
         System.assertEquals('Account', accountObjectName);
         System.assertEquals('Look up', accountObjectRelationshipType);
 
-        // Ensure that null is returned when an invalid object name is passed.
-        List<Map<String, String>> invalidObjectNameResult = CrossReferencesAPI.getParents('*InvalidObjectName*');
-        System.assertEquals(null, invalidObjectNameResult);
+        // Ensure that an error is thrown is when an invalid object name is passed.
+        try {
+            List<Map<String, String>> invalidObjectNameResult = CrossReferencesAPI.getParents('*InvalidObjectName*');
+            System.assert(false);
+        } catch (Exception e) {
+            System.assert(true);
+        }
+        
 
     }
 
@@ -366,7 +421,7 @@ private class CrossReferencesAPITest
             }
         }
 
-        // Ensures that every API name returned contains __c (as every custom object has it);
+        // Ensures that every API name returned contains '__c' (as every custom object has it);
         System.assertEquals(true, isEveryObjectCustom);
     }
 }

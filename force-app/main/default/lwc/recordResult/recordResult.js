@@ -90,7 +90,7 @@ export default class RecordResult extends LightningElement
             console.log('Current record details: ', JSON.stringify(currentRecordDetails));
 
             if(currentRecordDetails.hasOwnProperty('ok') && !currentRecordDetails.ok || childData.hasOwnProperty('ok') && !childData.ok || parentData.hasOwnProperty('ok') && !parentData.ok)
-                this.showError();
+            this.showError();
         }
         catch(e)
         {

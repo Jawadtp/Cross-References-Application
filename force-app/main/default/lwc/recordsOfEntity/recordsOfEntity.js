@@ -85,7 +85,6 @@ export default class RecordsOfEntity extends LightningElement
     {
         this.isLoading=true;
 
-        console.log('Fetching records for page ', this.pageNumber);
         const parametersObject = {
             recordId: this.recordId, 
             objectAPIName: this.entityDetails.Name, 
@@ -101,11 +100,6 @@ export default class RecordsOfEntity extends LightningElement
         if(this.records.length===0)
             this.numberOfPages=0;
 
-        console.log('Records fetched: ', JSON.stringify(this.records));
-
-        console.log('Number of pages: ', this.numberOfPages);
-        console.log('Updated array: ', JSON.stringify(this.records));
-
         this.recordsCache[this.pageNumber-1] = this.records;
 
         this.isLoading=false;
@@ -120,29 +114,21 @@ export default class RecordsOfEntity extends LightningElement
         const recordId = event.currentTarget.getAttribute('data-item');
         const recordClickEvent = new CustomEvent('fetchrelatedrecords', { detail: recordId });
         this.dispatchEvent(recordClickEvent);
-        console.log('Clicked record id: ', recordId);
     }
 
     handleNextPageClick()
     {
-        console.log('Next page clicked');
         if(this.pageNumber<this.numberOfPages)
         {
-            console.log('Next page available');
-
             this.pageNumber=this.pageNumber+1;
 
-            console.log('Page number: ', this.pageNumber)
-            console.log('Length of cache: ', this.recordsCache);
             if(this.recordsCache[this.pageNumber-1].length===0)
             {
-                console.log('New page. Fetching records...');
                 this.fetchRecords();
             }
             else 
             {
                 this.records = this.recordsCache[this.pageNumber-1];
-                console.log('Records fetched earlier found in cache.');
             }
         }
     }
@@ -154,14 +140,11 @@ export default class RecordsOfEntity extends LightningElement
             this.pageNumber=this.pageNumber-1;
             if(this.recordsCache[this.pageNumber-1].length===0)
             {
-                console.log('New page. Fetching records...');
                 this.fetchRecords();
             }
             else 
             {
                 this.records = this.recordsCache[this.pageNumber-1];
-                console.log('Records fetched earlier found in cache.');
-
             }
         }
     }

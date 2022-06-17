@@ -4,10 +4,8 @@ import getChildren from "@salesforce/apex/CrossReferencesAPI.getChildren";
 
 export default class EntityResult extends LightningElement 
 {
-    currentEntity='';
-    inputText='';
-
-    showSpinner=false;
+    @api
+    customObjectApiNames;
 
     @track
     parents=[];
@@ -15,13 +13,9 @@ export default class EntityResult extends LightningElement
     @track
     children=[];
 
-    @api
-    customObjectApiNames;
-
-    connectedCallback()
-    {
-        console.log('API Names: ', JSON.stringify(this.customObjectApiNames));
-    }
+    currentEntity='';
+    inputText='';
+    showSpinner=false;
 
     get getPlaceholderText()
     {
@@ -43,12 +37,17 @@ export default class EntityResult extends LightningElement
         this.inputText = event.target.value;
     }
 
+    onSubmitClick()
+    {
+        this.fetchRelatedEntities();
+    }
+
     isEntityCustom(entityName)
     {
-
         for(let i=0; i<this.customObjectApiNames.length; i++)
             if(this.customObjectApiNames[i].value===entityName)
                 return true;
+
         return false;
     }
 
@@ -69,8 +68,7 @@ export default class EntityResult extends LightningElement
         this.showSpinner=true;
         this.currentEntity=this.inputText;
 
-        this.parents=[];
-        this.children=[];
+        this.parents=this.children=[];
 
         const parentData = await getParents({objectName: this.inputText});
         const childData = await getChildren({objectName: this.inputText});
@@ -78,19 +76,7 @@ export default class EntityResult extends LightningElement
         this.parents=parentData;
         this.children=childData;
 
-        console.log('Parents for entity: ', JSON.stringify(this.parents));
-        console.log('parent data updated');
-
         this.showSpinner=false;
     }
-    
-    onSubmitClick()
-    {
-        this.fetchRelatedEntities();
-    }
-
-    
-    
-
     
 }

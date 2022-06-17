@@ -1,32 +1,31 @@
-import { LightningElement, api, track } from 'lwc';
-import { SEARCH_WAIT_INTERVAL } from 'c/utils';
+import { LightningElement, api} from 'lwc';
+import { SEARCH_WAIT_INTERVAL, RECORD_COUNT_FOR_SEARCH  } from 'c/utils';
 
 export default class RecordsDisplay extends LightningElement 
 {
+    @api entityList;
 
+    @api
+    get recordId() 
+    {
+        return this._recordId;
+    }
+    set recordId(value) 
+    {
+        this.setAttribute('recordId', value);
+        this._recordId = value;
+        this.resetSearchInput();
+    }
+
+    _recordId;
     inputText = '';
     searchKey = '';
     timeout=null;
-    @track activeSections = [];
 
-    @api entityList;
-    @api recordId;
-
-    connectedCallback()
+    resetSearchInput()
     {
-        this.initialiseActiveSections();
-        console.log('recordsDisplay called for entities: ' + JSON.stringify(this.entityList));
-    }
-
-    initialiseActiveSections()
-    {
-        let activeSections = [];
-        this.entityList.forEach((entity)=> {
-            activeSections.push(entity.Name);
-        });
-        Promise.resolve().then(() => {
-            this.activeSections=activeSections;
-        });
+        this.inputText = '';
+        this.searchKey = '';
     }
 
     handleSearchInputChange(event)
@@ -38,20 +37,11 @@ export default class RecordsDisplay extends LightningElement
             this.searchKey = this.inputText;
             console.log('Searching for', this.searchKey);
           }, SEARCH_WAIT_INTERVAL);
-
-    }
-
-    handleSearchButton()
-    {
-        this.searchKey=this.inputText;
     }
 
     onRecordClick(event)
     {
-        
-        console.log('Record click reached recordsDisplay, ID ', event.detail);
-        this.inputText='';
-        this.searchKey='';
+        this.resetSearchInput();
         const recordId = event.detail;
         const recordClickEvent = new CustomEvent('fetchrelatedrecords', { detail: recordId });
         this.dispatchEvent(recordClickEvent);
@@ -64,7 +54,11 @@ export default class RecordsDisplay extends LightningElement
 
     get showSearchRecords()
     {
-        return this.entityList.length>0;
+        let totalNumberOfRecords = 0;
+        this.entityList.forEach((entity)=>{
+            totalNumberOfRecords+=parseInt(entity.NumberOfRecords, 10);
+        });
+        return totalNumberOfRecords>=RECORD_COUNT_FOR_SEARCH;
     }
 
 }

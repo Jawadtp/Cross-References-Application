@@ -145,6 +145,7 @@ public class CrossReferencesAPI
     public static Map<String, String> getRecordById(String recordId)
     {
         if((recordId instanceof Id)==false) throw new AuraHandledException('Invalid record id');
+        
         String objectAPIName;
         Id rId;
 

@@ -15,29 +15,7 @@
         </template>
 
         <template if:true={isDataFetched}>
-            <!-- <lightning-card title="Related entities">
-                
-                <ul class="slds-m-around_medium">
-                    <h1 class="slds-text-title_bold">List of parents: </h1>
-
-                    <template for:each={parents} for:item="parent">
-                        <li key={parent.Id}>
-                             {parent.Name}  -  <span class="slds-text-color_error"> {parent.RelationshipType} </span> 
-                        </li>
-                    </template>
-                </ul>
-
-                <ul class="slds-m-around_medium">
-                    <h1 class="slds-text-title_bold">List of children: </h1>
-
-                    <template for:each={children} for:item="child">
-                        <li key={child.Id}>
-                             {child.Name} -  <span class="slds-text-color_error"> {child.RelationshipType}</span> 
-                        </li>
-                    </template>
-                </ul>
-
-            </lightning-card> -->
+         
             <c-entity-graphical-display onfetchdetailsforentity={fetchDetailsForEntity} children={children} parents={parents} entity={currentEntity}></c-entity-graphical-display>
            
         </template>

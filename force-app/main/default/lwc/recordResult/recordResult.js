@@ -9,9 +9,8 @@ import getParentEntityDetails from '@salesforce/apex/CrossReferencesAPI.getParen
 export default class RecordResult extends LightningElement 
 {
     inputText='';
-
+    recordId='';
     isDataFetched=false;
-
     showSpinner=false;
 
     @track
@@ -28,15 +27,6 @@ export default class RecordResult extends LightningElement
         this.inputText=event.target.value;
     }
 
-    onRecordClick(event)
-    {
-        const recordId = event.currentTarget.getAttribute('data-item');
-        console.log('PRESSED: ', recordId);
-        this.inputText=recordId;
-        this.fetchRecords();
-        
-    }
-
    onClearResultClick()
    {
        console.log('Cleared');
@@ -44,32 +34,15 @@ export default class RecordResult extends LightningElement
        this.isDataFetched=false;
    }
 
-
-    getRecordListFromAPIData(data)
-    {
-        var records = [];
-
-        for(let objectMetaData of Object.keys(data))
-        {
-            const objectMetaDataList = objectMetaData.split(',');
-            records.push({Name: objectMetaDataList[0],  RelationshipType: objectMetaDataList[1], NameField: objectMetaDataList[2], Records: data[objectMetaData]})
-        }
-
-        return records;
-    }
-
    fetchClickedRecord(event)
     {
-        console.log('Record click reached recordResult, ID ', event.detail);
-
         this.inputText=event.detail;
+        this.recordId=event.detail;
         this.fetchRecords();
     }
 
     async fetchRecords()
     {
-        this.isIdInvalid=false;
-
         this.inputText = this.inputText.trim();
         if(this.inputText==='')
             return;
@@ -84,13 +57,9 @@ export default class RecordResult extends LightningElement
             childData = await getChildEntityDetails({recordId: this.inputText});
             parentData = await getParentEntityDetails({recordId: this.inputText});
             currentRecordDetails = await getRecordById({recordId: this.inputText});
-            
-            console.log('child records: ', JSON.stringify(childData));
-            console.log('parent records: ', JSON.stringify(parentData));
-            console.log('Current record details: ', JSON.stringify(currentRecordDetails));
 
             if(currentRecordDetails.hasOwnProperty('ok') && !currentRecordDetails.ok || childData.hasOwnProperty('ok') && !childData.ok || parentData.hasOwnProperty('ok') && !parentData.ok)
-            this.showError();
+                this.showError();
         }
         catch(e)
         {
@@ -98,33 +67,29 @@ export default class RecordResult extends LightningElement
             this.showError();
             return;
         }
-
      
         this.children = childData;
         this.parents = parentData;
        this.currentRecordDetails = currentRecordDetails;
-
-
         this.isDataFetched=true;
-
         this.showSpinner=false; 
     }
 
     showError()
     {
         this.showSpinner=false; 
-            const evt = new ShowToastEvent({
-                title: 'Invalid record ID',
-                message: 'No record could be found with the entered record ID',
-                variant: 'error',
-            });
-            this.dispatchEvent(evt);
+        const evt = new ShowToastEvent({
+            title: 'Invalid record ID',
+            message: 'No record could be found with the entered record ID',
+            variant: 'error',
+        });
+        this.dispatchEvent(evt);
     }
 
     onSubmitClick()
     {
-       this.fetchRecords();
-       
+        this.recordId=this.inputText;
+        this.fetchRecords();
     }
 
 }

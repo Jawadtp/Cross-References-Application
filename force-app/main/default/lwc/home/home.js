@@ -8,27 +8,15 @@ import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 export default class Home extends LightningElement 
 {
 
-    inputText='';
-    error='';
-
-    @track parents={};
-    @track children={};
+    inputText = '';
+    error = '';
+    value = 'entity';
 
     @track customObjectAPINames = [];
-
-    
-    showResult=false;
-
-    value = 'entity';
 
     connectedCallback()
     {
         this.fetchCustomObjectAPINames()
-    }
-
-    get hasErrorOccured()
-    {
-        return this.error!=='';
     }
 
     async fetchCustomObjectAPINames()
@@ -62,13 +50,15 @@ export default class Home extends LightningElement
         this.customObjectAPINames=customObjectAPINames;
     }
 
-    get isDataFetched()
+    radioSelectionChange(event)
     {
-        return Object.keys(this.parents).length !=0 //&& Object.keysw(this.children).length!=0;
+        this.value=event.detail.value
     }
-
     
-    
+    handleInputChange(event)
+    {
+        this.inputText = event.target.value;
+    }
 
     get options() {
         return [
@@ -77,12 +67,6 @@ export default class Home extends LightningElement
         ];
     }
 
-    radioSelectionChange(event)
-    {
-        console.log(event.detail.value)
-        this.value=event.detail.value
-    }
-    
     get showEntityResult()
     {
         return this.value==='entity';
@@ -92,24 +76,5 @@ export default class Home extends LightningElement
     {
         return this.value==='record';
     }
-    
-
-
-   
-    handleInputChange(event)
-    {
-        this.inputText = event.target.value;
-    }
-
-    get textFieldPlaceholderText()
-    {
-        return this.value==='entity'?'Enter custom object API name..':'Enter record id..';
-    }
-
-     onSubmitClick()
-    {
-      this.showResult=true;
-    }
-
 
 }

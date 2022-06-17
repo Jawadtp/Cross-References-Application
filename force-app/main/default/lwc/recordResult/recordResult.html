@@ -16,7 +16,7 @@
 
             <div class="recordResultOuterWrapper">
                 <div class="currentRecordTitle">
-                <div class="enteredRecordText"> Entered record </div>
+                    <div class="enteredRecordText"> Entered record </div>
                 </div>
                 <div class="currentRecordCard">
                     <div class="exitButton" onclick={onClearResultClick}>
@@ -33,12 +33,12 @@
 
             <div class="recordResultWrapper parentRecords">
                 <h1 class="slds-text-title_bold">Parent records </h1>
-                <c-records-display record-id={inputText} onfetchrelatedrecords={fetchClickedRecord} entity-list={parents}></c-records-display>
+                <c-records-display record-id={recordId} onfetchrelatedrecords={fetchClickedRecord} entity-list={parents}></c-records-display>
             </div>
 
             <div class="recordResultWrapper childRecords">
                 <h1 class="slds-text-title_bold">Child records </h1>
-                <c-records-display record-id={inputText} onfetchrelatedrecords={fetchClickedRecord} entity-list={children}></c-records-display>              
+                <c-records-display record-id={recordId} onfetchrelatedrecords={fetchClickedRecord} entity-list={children}></c-records-display>              
             </div>
 
         </template>

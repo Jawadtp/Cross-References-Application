@@ -11,7 +11,7 @@
     </template>
 
     <template for:each={entityList} for:item="entity">
-        <c-records-of-entity search-key={searchKey} onfetchrelatedrecords={onRecordClick} record-id={recordId} key={entity.Name} entity-details={entity} ></c-records-of-entity>
+        <c-records-of-entity search-key={searchKey} onfetchrelatedrecords={onRecordClick} record-id={_recordId} key={entity.Name} entity-details={entity} ></c-records-of-entity>
     </template>
 
 </template>

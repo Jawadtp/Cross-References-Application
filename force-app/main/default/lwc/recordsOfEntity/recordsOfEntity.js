@@ -42,13 +42,10 @@ export default class RecordsOfEntity extends LightningElement
     connectedCallback()
     {
         this.setup();
-        
     }
 
     async setup()
     {
-        console.log('Entity details: ', JSON.stringify(this.entityDetails));
-        console.log('Number of records for ', this.entityDetails.Name, ': ', this.entityDetails.numberOfRecords);
         if(this._searchKey==='')
         {
             this.numberOfPages = Math.ceil(this.entityDetails.NumberOfRecords/NUMBER_OF_RECORDS_PER_PAGE);
@@ -77,7 +74,6 @@ export default class RecordsOfEntity extends LightningElement
             this.recordsCache.push([]);
 
         this.fetchRecords();
-
 
         Promise.resolve().then(() => {
             this.activeSections=[this.entityDetails.Name];
@@ -116,26 +112,6 @@ export default class RecordsOfEntity extends LightningElement
 
         this.accordionLabel = `${this.entityDetails.Name} (${this.entityDetails.RelationshipType}) - ${this.numberOfRecords} record${this.numberOfRecords==1?'':'s'}`;
 
-    }
-
-    get showAccordion()
-    {
-        return this.numberOfPages!==0;
-    }
-
-    get showPaginationButtons()
-    {
-        return this.numberOfPages>1;
-    }
-
-    get disablePreviousButton()
-    {
-        return this.pageNumber<=1;
-    }
-
-    get disableNextButton()
-    {
-        return this.pageNumber>=this.numberOfPages;
     }
 
     onRecordClick(event)
@@ -190,13 +166,33 @@ export default class RecordsOfEntity extends LightningElement
         }
     }
 
+    handleSectionToggle()
+    {
+    }
+
+    get showAccordion()
+    {
+        return this.numberOfPages!==0;
+    }
+
+    get showPaginationButtons()
+    {
+        return this.numberOfPages>1;
+    }
+
+    get disablePreviousButton()
+    {
+        return this.pageNumber<=1;
+    }
+
+    get disableNextButton()
+    {
+        return this.pageNumber>=this.numberOfPages;
+    }
+
     get areRecordsFetched()
     {
         return this.records.length>0;
     }
 
-    handleSectionToggle()
-    {
-
-    }
 }
